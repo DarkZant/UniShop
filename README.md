@@ -1,28 +1,33 @@
 Liste des TODOs (Il manque surement des choses)
 
 GÉNÉRAL
-- Toutes les fonctionnalités qu'un visiteur à accès (Requêtes publiques dans l'énoncé)
-- Gérer connection 24h après création du compte
-- Adresse courriel unique pour acheteur et revendeur
-- Modifier profil revendeur et acheteur
-- NOTIFICATIONS
+É- Toutes les fonctionnalités qu'un visiteur à accès (Requêtes publiques dans l'énoncé) 
+É- Gérer connection 24h après création du compte
+É- Adresse courriel unique pour acheteur et revendeur
+Mar- Modifier profil revendeur et acheteur
+Man- NOTIFICATIONS
 
 ACHETEUR
-- Liker évaluation et gestion des points
-- Annuler commande + Date d'arrivé estimée
-- Créer commande pour retour / échange + check jours
-- Système de followers pour acheteurs
-- Trouver revendeur
-- Payer avec ses points
-- Ajouter métriques acheteurs (Nb articles achetés, likes sur évaluations)
+É- Liker évaluation et gestion des points
+É- Annuler commande + Date d'arrivé estimée
+É- Créer commande pour retour / échange + check jours
+Man- Système de followers pour acheteurs
+Man- Trouver revendeur
+É- Payer avec ses points
+Mar- Ajouter métriques acheteurs (Nb articles achetés, likes sur évaluations)
 
 REVENDEURS
-- Update infos revendeur quand commande effectuée (revenu, nbproduitsVendus)
-- Gestion commandes revendeur
+É- Update infos revendeur quand commande effectuée (revenu, nbproduitsVendus)
+Man- Gestion commandes revendeur
+
+Mar - Tests
+Mar - README
+Cédric - JAVADOC
 
 PAS DU CODE
-- Créer le database de l'énoncé du Devoir3
-- Modifier le diagramme de classe à la fin
+É- Créer le database de l'énoncé du Devoir3
+Man- Modifier le diagramme de classe à la fin
+Mar- Rapport
 
 
 Vous pouvez rajouter des TODOs si vous voyez qqch d'autres à faire  
@@ -35,8 +40,6 @@ si vous êtes pas sûrs de certains trucs
 
 Les attributs des classes devraient être complets mais il se peut que vous deviez
 en rajouter. Essayer de pas changer ceux que j'ai fait par contre.
-
-On fera les tests unitaires et le Javadoc à la fin une fois que tout sera implémenté
 
 On s'en fou des push/commits du github (les insights aka combien chacun a contribué), 
 faites ce que vous voulez tant que vous détruisez pas tout lmao  
