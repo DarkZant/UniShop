@@ -20,14 +20,16 @@ REVENDEURS
 É- Update infos revendeur quand commande effectuée (revenu, nbproduitsVendus)  
 Man- Gestion commandes revendeur  
   
+✅ Mar - Structure GitHub Remise
+  
 Mar - Tests  
-Mar - README  
+✅ Mar - README  
 Cédric - JAVADOC  
   
 PAS DU CODE  
 É- Créer le database de l'énoncé du Devoir3  
 Man- Modifier le diagramme de classe à la fin  
-Mar- Rapport  
+✅ Mar- Rapport  
   
   
 Vous pouvez rajouter des TODOs si vous voyez qqch d'autres à faire  
