@@ -12,6 +12,7 @@ public class Acheteur extends User{
     private int points;
     private final int likes;
     final ArrayList<String> acheteursSuivis;
+    final ArrayList<String> suiveurs;
     final ArrayList<String> revendeursLikes;
     public final Commande panier;
 
@@ -25,6 +26,7 @@ public class Acheteur extends User{
         this.likes = likes;
         this.acheteursSuivis = new ArrayList<>(acheteursSuivis);
         this.revendeursLikes = new ArrayList<>(revendeursLikes);
+        this.suiveurs = new ArrayList<>(); //Suiveurs en input
         this.panier = panier;
     }
 
@@ -32,12 +34,12 @@ public class Acheteur extends User{
     public boolean isAcheteur() {
         return true;
     }
-    @Override
     public void ajouterCommande(Commande c) {
         commandes.add(c);
         points += c.getPointsTotal();
         save();
     }
+
     @Override
     public void save() {
         StringJoiner sj = new StringJoiner("\n");
@@ -72,6 +74,12 @@ public class Acheteur extends User{
         }
         return false;
     }
+    public ArrayList<String> getFollowers() {
+        return new ArrayList<>(suiveurs);
+    }
+    public ArrayList<String> getSuivis() {
+        return new ArrayList<>(acheteursSuivis);
+    }
     public void ajouterPoints(int pts) {
         this.points += pts;
     }
@@ -85,6 +93,6 @@ public class Acheteur extends User{
     @Override
     public String afficherMetriques() {
         return "\nNombre de points: " + points + "\nNombre total de commandes effectuées: " + commandes.size() +
-                "\nNombre de followers: " + likes;
+                "\nNombre de followers: " + suiveurs.size();
     }
 }

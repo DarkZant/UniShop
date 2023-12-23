@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static unishop.ControleurAcheteur.menuAcheteur;
+import static unishop.ControleurInvite.menuInvite;
 import static unishop.ControleurRevendeur.menuRevendeur;
 //import java.util.regex.*;
 
@@ -35,22 +36,24 @@ public class Main {
     static void menuPrincipal(){
         while (true) {
             System.out.println("\nBienvenue sur UniShop!");
-            choix = selectionChoix(new String[] {"Se connecter", "Créer un compte", "Quitter UniShop"});
-            if (choix == 1) {
-                connectedUser = connecterUser();
-                if (connectedUser == null)
-                    continue;
-                System.out.print("\nRebonjour " + connectedUser.getUsername() + " ! ");
-                if (connectedUser.isAcheteur())
-                    menuAcheteur((Acheteur) connectedUser);
-                else
-                    menuRevendeur((Revendeur) connectedUser);
-                connectedUser = null;
+            choix = selectionChoix(new String[]{"Se connecter", "Créer un compte", "Continuer en tant qu'invité",
+                    "Quitter UniShop"});
+            switch (choix) {
+                case 1 -> {
+                    connectedUser = connecterUser();
+                    if (connectedUser == null)
+                        continue;
+                    System.out.print("\nRebonjour " + connectedUser.getUsername() + " ! ");
+                    if (connectedUser.isAcheteur())
+                        menuAcheteur((Acheteur) connectedUser);
+                    else
+                        menuRevendeur((Revendeur) connectedUser);
+                    connectedUser = null;
+                }
+                case 2 -> creerCompte();
+                case 3 -> menuInvite();
+                case 4 -> {return;}
             }
-            else if (choix == 2)
-                creerCompte();
-            else
-                break;
         }
     }
     public static short selectionChoix(Object[] choix) {
