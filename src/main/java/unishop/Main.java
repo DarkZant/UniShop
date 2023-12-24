@@ -13,7 +13,7 @@ import java.util.*;
 import static unishop.ControleurAcheteur.menuAcheteur;
 import static unishop.ControleurInvite.menuInvite;
 import static unishop.ControleurRevendeur.menuRevendeur;
-//import java.util.regex.*; hello
+//import java.util.regex.*;
 
 public class Main {
 
@@ -93,7 +93,7 @@ public class Main {
                 try {
                     short reponse = Short.parseShort(reponseS);
                     if (reponse < nbChoix + 1 && reponse > 0)
-                        return reponse;
+                        return (short) (reponse + 1);
                     else
                         System.out.println("Choix invalide! Veuillez entrer un choix de 1 à " + nbChoix);
                 }
