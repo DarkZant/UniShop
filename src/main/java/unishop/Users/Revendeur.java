@@ -75,5 +75,8 @@ public class Revendeur extends User{
         followers.add(acheteur);
         save();
     }
+    public boolean estDejaSuiviPar(String acheteur) {
+        return this.followers.contains(acheteur);
+    }
 
 }
