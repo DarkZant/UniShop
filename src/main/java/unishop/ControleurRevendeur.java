@@ -68,7 +68,7 @@ public class ControleurRevendeur {
             System.out.println("Voulez vous offrir une promotion en points?");
             int points = (int) Math.floor(prix);
             int pointsMax = (int) Math.floor(prix * 19);
-            if(1 == selectionChoix(new String[] {"Oui", "Non"})) {
+            if(choixOuiNon()) {
                 System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
                 int pts = demanderIntPositif("un nombre de points");
                 while (pts > pointsMax) {
@@ -83,6 +83,8 @@ public class ControleurRevendeur {
                     c, new ArrayList<>(), new ArrayList<>());
             p.save();
             revendeur.ajouterProduit(p);
+            if (c != null)
+                revendeur.ajouterCatVendu(c.getCat());
             System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
         }
         catch (IOException e) {

@@ -32,6 +32,7 @@ public class Revendeur extends User{
     public void ajouterProduit(Produit p) {
         this.produits.add(p);
     }
+    public void ajouterCatVendu(String c) {this.categorieVendu.add(c);}
     @Override
     public void save() {
         StringJoiner sj = new StringJoiner("\n");

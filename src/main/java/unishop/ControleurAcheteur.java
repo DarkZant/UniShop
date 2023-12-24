@@ -4,6 +4,7 @@ import unishop.Categories.Categorie;
 import unishop.Users.Acheteur;
 import unishop.Users.Revendeur;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,10 +167,66 @@ public class ControleurAcheteur {
                             acheteur.panier.addProduit(p);
                             System.out.println("\nVous avez ajouté " + p.titre + " au panier!");
                             System.out.println("\nVoulez-vous aller au panier?");
-                            if (1 == selectionChoix(new String[] {"Oui", "Non"}))
+                            if (choixOuiNon())
                                 return 2;
                         }
-                        case 3 -> System.out.println("\n" + p.getEvaluationsDisplay());
+                        case 3 -> {
+                            System.out.println("\nChoississez une évaluation:");
+                            ArrayList<Evaluation> es = p.getEvaluations();
+                            ArrayList<String> ess = new ArrayList<>();
+                            for (Evaluation e : es)
+                                ess.add(e.getDisplayFormat() + "\n");
+                            ess.add("Retourner au produit");
+                            choix = selectionChoix(ess.toArray());
+                            if (choix == ess.size())
+                                continue;
+                            Evaluation e = es.get(choix - 1);
+                            System.out.println(e.getDisplayFormat());
+                            if (e.nomAcheteur.equals(acheteur.getUsername())) {
+                                System.out.println("\nC'est votre propre évaluation!");
+                                continue;
+                            }
+                            System.out.println("\nQue voulez-vous faire?");
+                            choix = selectionChoix(new String[] {"Liker l'évaluation",
+                                    "Signaler l'évaluation comme inappropriée", "Retourner au produit"});
+                            if (choix == 3)
+                                continue;
+                            Acheteur a = initialiserAcheteur(e.nomAcheteur);
+                            Evaluation evalAch = null;
+                            for (Evaluation eas : a.getEvals()) {
+                                if (eas.isEqual(e)) {
+                                    evalAch = eas;
+                                    break;
+                                }
+                            }
+                            if (evalAch == null) {
+                                System.out.println("Erreur: Eval pas trouvé chez l'acheteur");
+                                continue;
+                            }
+                            if (choix == 1) {
+                                if (evalAch.getLikes() == 0) {
+                                    a.ajouterPoints(10);
+                                }
+                                evalAch.ajouterLike();
+                                a.saveEvals();
+                                e.ajouterLike();
+                                p.save();
+                                System.out.println("Vous avez liké l'évaluation avec succès!");
+                            }
+                            else {
+                                if (evalAch.signaler()) {
+                                    if (evalAch.getLikes() == 0)
+                                        a.ajouterPoints(-10);
+                                    a.saveEvals();
+                                    e.signaler();
+                                    p.save();
+                                    System.out.println("Vous avez signalé cette évaluation!");
+                                }
+                                else
+                                    System.out.println("Cette évaluation était déjà signalée!");
+                            }
+
+                        }
                         case 4 -> {
                             if (acheteur.aAcheteProduit(p.titre)) {
                                 ecrireEvaluation(p);
@@ -220,16 +277,17 @@ public class ControleurAcheteur {
         System.out.println("\nCommande #" + cmd.getId());
         System.out.println(cmd.afficher());
         System.out.println("Votre commande est " + cmd.getEtat() + ".");
+        String cmdpath = USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes/";
         while (true) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Confirmer la livraison", "Retourner un produit", "Évaluer un produit",
-                    "Retourner au menu"});
+                    "Annuler la commande", "Retourner au menu"});
             switch (choix) {
                 case 1 -> {
                     switch (cmd.confirmerLivraison()) {
                         case 0 -> {
                             System.out.println("\nL'état de votre commande a été changé avec succès!");
-                            cmd.saveAfter(USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes/");
+                            cmd.saveAfter(cmdpath);
                             //TODO Update commande revendeur
                         }
                         case 1 -> System.out.println("\nVotre commande est toujours en production.");
@@ -276,8 +334,19 @@ public class ControleurAcheteur {
                     ecrireEvaluation(p);
                 }
                 case 4 -> {
-                    return;
+                    if (cmd.estEnProduction()) {
+                        System.out.println("\nVoulez-vous vraiment annuler votre commande?");
+                        if (choixOuiNon()) {
+                            effacerFichier(cmdpath + cmd.getId() + CSV);
+                            acheteur.annulerCommande(cmd);
+                            //TODO UPDATE COMMANDE REVENDEUR
+                        }
+                    }
+                    else
+                        System.out.println("Vous ne pouvez plus annuler votre commande!");
+
                 }
+                case 5 -> {return;}
             }
         }
     }
@@ -302,7 +371,7 @@ public class ControleurAcheteur {
                 try {
                     System.out.println("Voulez-vous utiliser la même adresse que votre compte?");
                     String adresse = acheteur.getAddress();
-                    if (2 == selectionChoix(new String[] {"Oui", "Non"})) {
+                    if (!choixOuiNon()) {
                         System.out.print("Entrez une nouvelle adresse: ");
                         adresse = br.readLine();
                     }
@@ -375,7 +444,9 @@ public class ControleurAcheteur {
             }
             System.out.print("Entrez un commentaire sur le produit: ");
             String comment = br.readLine();
-            p.addEvaluation(new Evaluation(acheteur.getUsername(), note, comment));
+            Evaluation e = new Evaluation(acheteur.getUsername(), note, comment, 0, false);
+            p.addEvaluation(e);
+            acheteur.ajouterEvaluation(e);
             System.out.println("\nVotre évaluation a été écrite avec succès!");
         } catch (IOException e) {
             e.printStackTrace();

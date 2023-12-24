@@ -27,7 +27,7 @@ public abstract class User {
         this.commandes = new ArrayList<>(commandes);
 
     }
-    protected abstract void save();
+    public abstract void save();
     public abstract boolean isAcheteur();
     public abstract String afficherMetriques();
     public void addBillet(Billet b) {

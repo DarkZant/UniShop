@@ -2,7 +2,7 @@ package unishop.Categories;
 
 public abstract class Categorie {
 
-     public static String[] categories = new String[] {"Livres et manuels", "Ressources d'apprentissage",
+     public static final String[] categories = new String[] {"Livres et manuels", "Ressources d'apprentissage",
              "Articles de papeterie", "Matériel informatique", "Équipement de bureau"};
 
      public abstract short getCatID();

@@ -38,13 +38,15 @@ public class Commande {
     public String getEtat(){
         return etats[etat];
     }
+    public boolean estEnProduction() {return etat == 0;}
     public boolean estEnLivraison() {return etat == 1;}
+    public boolean estLivre() {return etat == 2;}
     public short confirmerLivraison() {
         if (this.estEnLivraison()) {
             ++this.etat;
             return 0;
         }
-        else if (etat == 2)
+        else if (estLivre())
             return 2;
         else
             return 1;
