@@ -23,12 +23,9 @@ public class Main {
     public final static String REVENDEURS = "Revendeurs/";
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
-
     public final static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
     private static User connectedUser = null;
     private static short choix;
-
     public static void main(String[] args) {
         menuPrincipal();
         System.out.println("\nAu plaisir de vous revoir!");
@@ -229,8 +226,9 @@ public class Main {
         String[] data = lireFichierEnEntier( path+ "Infos.csv");
         String[] infos = data[0].split(",");
         ArrayList<String> followers = iniArrayList(data[1]);
+        ArrayList<String> cat = iniArrayList(data[2]);
         ArrayList<Billet> bis = new ArrayList<>();
-        for (int i = 2; i < data.length; ++i) {
+        for (int i = 3; i < data.length; ++i) {
             String[] bs = data[i].split(",");
             bis.add(new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
                     Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8])));
@@ -242,7 +240,7 @@ public class Main {
                 ps.add(initialiserProduit(pc));
         }
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
-                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>());
+                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cat);
     }
     static Produit initialiserProduit(String titreProduit) throws IOException{
         String path = PRODUITS_PATH + titreProduit;
@@ -333,7 +331,7 @@ public class Main {
     }
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
-    }
+    } // username du fichier
     static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
