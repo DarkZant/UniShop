@@ -54,6 +54,8 @@ public class Acheteur extends User{
             sj.add(b.saveFormat());
         Main.ecrireFichierEntier(Main.USERS_PATH + Main.ACHETEURS + this.username + "/Infos.csv", sj.toString());
     }
+
+    // TEST
     public String suivre(String acheteur) {
         if (this.username.equals(acheteur))
             return "Vous ne pouvez pas vous suivre vous-même!";
@@ -90,6 +92,8 @@ public class Acheteur extends User{
         }
         return false;
     }
+
+    // TEST
     @Override
     public String afficherMetriques() {
         return "\nNombre de points: " + points + "\nNombre total de commandes effectuées: " + commandes.size() +

@@ -99,6 +99,8 @@ public class Produit {
     public void setUniqueId(int id) {
         this.id = id;
     }
+
+    // TEST
     public String liker(String nomAcheteur) {
         if (likes.contains(nomAcheteur))
             return "Vous avez déjà liké ce produit!";
@@ -111,6 +113,8 @@ public class Produit {
         this.noteMoyenne = getNoteMoyenne();
         save();
     }
+
+    // TEST
     public float getNoteMoyenne() {
         float n = 0;
         for (Evaluation e : evaluations) {

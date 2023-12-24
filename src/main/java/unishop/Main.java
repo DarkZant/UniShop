@@ -23,9 +23,12 @@ public class Main {
     public final static String REVENDEURS = "Revendeurs/";
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
+
     public final static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
     private static User connectedUser = null;
     private static short choix;
+
     public static void main(String[] args) {
         menuPrincipal();
         System.out.println("\nAu plaisir de vous revoir!");
@@ -53,6 +56,8 @@ public class Main {
             }
         }
     }
+
+    // TEST
     public static short selectionChoix(Object[] choix) {
         int nbChoix = choix.length;
         for (int i = 0; i < nbChoix; ++i) {
@@ -226,9 +231,8 @@ public class Main {
         String[] data = lireFichierEnEntier( path+ "Infos.csv");
         String[] infos = data[0].split(",");
         ArrayList<String> followers = iniArrayList(data[1]);
-        ArrayList<String> cat = iniArrayList(data[2]);
         ArrayList<Billet> bis = new ArrayList<>();
-        for (int i = 3; i < data.length; ++i) {
+        for (int i = 2; i < data.length; ++i) {
             String[] bs = data[i].split(",");
             bis.add(new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
                     Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8])));
@@ -240,7 +244,7 @@ public class Main {
                 ps.add(initialiserProduit(pc));
         }
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
-                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cat);
+                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>());
     }
     static Produit initialiserProduit(String titreProduit) throws IOException{
         String path = PRODUITS_PATH + titreProduit;
@@ -270,7 +274,9 @@ public class Main {
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evalsL);
     }
-    static int demanderIntPositif(String demande) throws IOException {
+
+    // TEST
+    public static int demanderIntPositif(String demande) throws IOException {
         int i;
         while (true) {
             try {
@@ -286,7 +292,9 @@ public class Main {
             }
         }
     }
-    static long demanderLong(String demande) throws IOException {
+
+    // TEST
+    public static long demanderLong(String demande) throws IOException {
         long l;
         while (true) {
             try {
@@ -298,7 +306,9 @@ public class Main {
             }
         }
     }
-    static float demanderFloat(String demande) throws IOException {
+
+    // TEST
+    public static float demanderFloat(String demande) throws IOException {
         float prix;
         while (true) {
             try {
@@ -329,10 +339,13 @@ public class Main {
             e.printStackTrace();
         }
     }
+
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
-    } // username du fichier
-    static ArrayList<String> iniArrayList(String s) {
+    }
+
+    // TEST
+    public static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
             return new ArrayList<>(Arrays.asList(tab).subList(1, tab.length));
@@ -340,6 +353,8 @@ public class Main {
             return new ArrayList<>(Arrays.asList(tab));
 
     }
+
+
     public static String getConnectedUsername() {
         return connectedUser.getUsername();
     }
