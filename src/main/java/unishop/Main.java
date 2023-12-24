@@ -93,7 +93,7 @@ public class Main {
                 try {
                     short reponse = Short.parseShort(reponseS);
                     if (reponse < nbChoix + 1 && reponse > 0)
-                        return (short) (reponse + 1);
+                        return reponse;
                     else
                         System.out.println("Choix invalide! Veuillez entrer un choix de 1 à " + nbChoix);
                 }
