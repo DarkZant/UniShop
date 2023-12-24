@@ -1,9 +1,6 @@
 name: Run tests with Maven
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
@@ -20,6 +17,4 @@ jobs:
           distribution: 'oracle'
 
       - name: Test with Maven
-        run: |
-          cd ./path/to/your/project
-          mvn test
+        run: mvn test
