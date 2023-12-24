@@ -1,4 +1,4 @@
-package unishop.Users;
+package unishop.Tests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

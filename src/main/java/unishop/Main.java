@@ -323,6 +323,8 @@ public class Main {
             }
         }
     }
+
+    // TEST
     public static float arrondirPrix(float prix) {
         return Math.round((prix) * 100) / 100f;
     }
