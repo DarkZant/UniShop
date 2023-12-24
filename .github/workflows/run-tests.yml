@@ -17,5 +17,5 @@ jobs:
           distribution: 'oracle'
 
       - name: Test with Maven
-        working-directory: ../pom.xml
+        # working-directory: ./parcours-vers-le-dossier-où-se-trouve-pom.xml
         run: mvn test
