@@ -4,8 +4,10 @@ import unishop.Categories.Categorie;
 import unishop.Users.Acheteur;
 import unishop.Users.Revendeur;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static unishop.Main.*;
@@ -13,7 +15,7 @@ import static unishop.Main.*;
 public class ControleurAcheteur {
     private static short choix;
     private static Acheteur acheteur;
-    static void menuAcheteur(Acheteur a) {
+    static void menuAcheteur(Acheteur a)  {
         acheteur = a;
         while (true) {
             System.out.println("\nVoici le menu Acheteur:");
@@ -165,10 +167,66 @@ public class ControleurAcheteur {
                             acheteur.panier.addProduit(p);
                             System.out.println("\nVous avez ajouté " + p.titre + " au panier!");
                             System.out.println("\nVoulez-vous aller au panier?");
-                            if (1 == selectionChoix(new String[] {"Oui", "Non"}))
+                            if (choixOuiNon())
                                 return 2;
                         }
-                        case 3 -> System.out.println("\n" + p.getEvaluationsDisplay());
+                        case 3 -> {
+                            System.out.println("\nChoississez une évaluation:");
+                            ArrayList<Evaluation> es = p.getEvaluations();
+                            ArrayList<String> ess = new ArrayList<>();
+                            for (Evaluation e : es)
+                                ess.add(e.getDisplayFormat() + "\n");
+                            ess.add("Retourner au produit");
+                            choix = selectionChoix(ess.toArray());
+                            if (choix == ess.size())
+                                continue;
+                            Evaluation e = es.get(choix - 1);
+                            System.out.println(e.getDisplayFormat());
+                            if (e.nomAcheteur.equals(acheteur.getUsername())) {
+                                System.out.println("\nC'est votre propre évaluation!");
+                                continue;
+                            }
+                            System.out.println("\nQue voulez-vous faire?");
+                            choix = selectionChoix(new String[] {"Liker l'évaluation",
+                                    "Signaler l'évaluation comme inappropriée", "Retourner au produit"});
+                            if (choix == 3)
+                                continue;
+                            Acheteur a = initialiserAcheteur(e.nomAcheteur);
+                            Evaluation evalAch = null;
+                            for (Evaluation eas : a.getEvals()) {
+                                if (eas.isEqual(e)) {
+                                    evalAch = eas;
+                                    break;
+                                }
+                            }
+                            if (evalAch == null) {
+                                System.out.println("Erreur: Eval pas trouvé chez l'acheteur");
+                                continue;
+                            }
+                            if (choix == 1) {
+                                if (evalAch.getLikes() == 0) {
+                                    a.ajouterPoints(10);
+                                }
+                                evalAch.ajouterLike();
+                                a.saveEvals();
+                                e.ajouterLike();
+                                p.save();
+                                System.out.println("Vous avez liké l'évaluation avec succès!");
+                            }
+                            else {
+                                if (evalAch.signaler()) {
+                                    if (evalAch.getLikes() == 0)
+                                        a.ajouterPoints(-10);
+                                    a.saveEvals();
+                                    e.signaler();
+                                    p.save();
+                                    System.out.println("Vous avez signalé cette évaluation!");
+                                }
+                                else
+                                    System.out.println("Cette évaluation était déjà signalée!");
+                            }
+
+                        }
                         case 4 -> {
                             if (acheteur.aAcheteProduit(p.titre)) {
                                 ecrireEvaluation(p);
@@ -219,16 +277,17 @@ public class ControleurAcheteur {
         System.out.println("\nCommande #" + cmd.getId());
         System.out.println(cmd.afficher());
         System.out.println("Votre commande est " + cmd.getEtat() + ".");
+        String cmdpath = USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes/";
         while (true) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Confirmer la livraison", "Retourner un produit", "Évaluer un produit",
-                    "Retourner au menu"});
+                    "Annuler la commande", "Retourner au menu"});
             switch (choix) {
                 case 1 -> {
                     switch (cmd.confirmerLivraison()) {
                         case 0 -> {
                             System.out.println("\nL'état de votre commande a été changé avec succès!");
-                            cmd.saveAfter(USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes/");
+                            cmd.saveAfter(cmdpath);
                             //TODO Update commande revendeur
                         }
                         case 1 -> System.out.println("\nVotre commande est toujours en production.");
@@ -275,8 +334,19 @@ public class ControleurAcheteur {
                     ecrireEvaluation(p);
                 }
                 case 4 -> {
-                    return;
+                    if (cmd.estEnProduction()) {
+                        System.out.println("\nVoulez-vous vraiment annuler votre commande?");
+                        if (choixOuiNon()) {
+                            effacerFichier(cmdpath + cmd.getId() + CSV);
+                            acheteur.annulerCommande(cmd);
+                            //TODO UPDATE COMMANDE REVENDEUR
+                        }
+                    }
+                    else
+                        System.out.println("Vous ne pouvez plus annuler votre commande!");
+
                 }
+                case 5 -> {return;}
             }
         }
     }
@@ -301,7 +371,7 @@ public class ControleurAcheteur {
                 try {
                     System.out.println("Voulez-vous utiliser la même adresse que votre compte?");
                     String adresse = acheteur.getAddress();
-                    if (2 == selectionChoix(new String[] {"Oui", "Non"})) {
+                    if (!choixOuiNon()) {
                         System.out.print("Entrez une nouvelle adresse: ");
                         adresse = br.readLine();
                     }
@@ -374,7 +444,9 @@ public class ControleurAcheteur {
             }
             System.out.print("Entrez un commentaire sur le produit: ");
             String comment = br.readLine();
-            p.addEvaluation(new Evaluation(acheteur.getUsername(), note, comment));
+            Evaluation e = new Evaluation(acheteur.getUsername(), note, comment, 0, false);
+            p.addEvaluation(e);
+            acheteur.ajouterEvaluation(e);
             System.out.println("\nVotre évaluation a été écrite avec succès!");
         } catch (IOException e) {
             e.printStackTrace();
@@ -388,6 +460,112 @@ public class ControleurAcheteur {
     }
     static void gererAcheteursSuivis() { System.out.println("\nTODO"); }
     static void rechercherRevendeur() {
-        System.out.println("\nTODO");
+        System.out.println("\nQuel type de recherche voulez-vous faire?");
+        try {
+            ArrayList<String> revendeurSelect = new ArrayList<>();
+            List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+            String demandeUtilisateur = "";
+            boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
+                    "Recherche par filtre"});
+            String adressesDemande = "";
+
+            if (estRecherche) {
+                System.out.print("Entrez votre recherche: ");
+                demandeUtilisateur = br.readLine();
+            } else {
+                System.out.println("Choisissez votre type de filtre: ");
+                choix = selectionChoix(new String[]{"Catégorie de produits vendues", "Nom", "Adresse"});
+                switch (choix) {
+                    case 1 -> {
+                        System.out.println("Choisissez une catégorie: ");
+                        demandeUtilisateur = Categorie.getCat(selectionChoix(Categorie.categories) - 1);
+
+                    }
+                    case 2 -> {
+                        System.out.println("Choisissez un nom :");
+                        demandeUtilisateur = br.readLine();
+
+                    }
+                    case 3 -> {
+                        System.out.print("Choisissez une adresse ");
+                        demandeUtilisateur = br.readLine();
+                    }
+                }
+            }
+
+            for (String r : revendeurs) {
+                String[] contenu = lireFichierEnEntier(USERS_PATH + REVENDEURS + r + "/Infos.csv");
+                String adresse = contenu[0].split(",")[5];
+                List<String> categories = Arrays.asList(contenu[2].split(","));
+
+                if (estRecherche) {
+                    if (r.contains(demandeUtilisateur))
+                        revendeurSelect.add(r);
+                } else {
+                    switch (choix) {
+                        case 1 -> {
+                            if (categories.contains(demandeUtilisateur))
+                                revendeurSelect.add(r);
+                        }
+                        case 2 -> {
+                            if (r.contains(demandeUtilisateur))
+                                revendeurSelect.add(r);
+                        }
+                        case 3 -> {
+                            if (adresse.contains(demandeUtilisateur))
+                                revendeurSelect.add(r);
+                        }
+                    }
+                }
+            }
+            if (revendeurSelect.isEmpty()) {
+                System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
+                return;
+            }
+            revendeurSelect.add("Faire une nouvelle recherche");
+            revendeurSelect.add("Retourner au menu acheteur");
+            while (true) {
+                System.out.println("\nChoisissez un revendeur: ");
+                choix = selectionChoix(revendeurSelect.toArray());
+                if (choix == revendeurSelect.size() - 1)
+                    return;
+                else if (choix == revendeurSelect.size())
+                    return;
+                Revendeur r = initialiserRevendeur(revendeurSelect.get(choix - 1));
+                System.out.println("\n" + r.afficherMetriques());
+                System.out.println("\nQue voulez-vous faire ensuite?");
+                choix = selectionChoix(new String[]{"Liker le Revendeur", "Retourner au résultat de la recherche"});
+                if (choix == 2) {
+                    return;
+                } else {
+                    if (followDeja(r.getUsername())) {
+                        System.out.println("Vous suivez déjà ce revendeur.");
+                        return;
+                    } else {
+                        r.ajouterFollower(acheteur.getUsername());
+                        System.out.println("\nFelicitations !!! Vous suivez maintenant le revendeur.");
+                    }
+                }
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
+            rechercherProduits();
+        }
+    }
+
+    static Boolean followDeja(String username) {
+        List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+        for (String r : revendeurs){;
+            if (username == r) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        return null;
     }
 }

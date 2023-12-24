@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+
 import static unishop.ControleurAcheteur.menuAcheteur;
 import static unishop.ControleurInvite.menuInvite;
 import static unishop.ControleurRevendeur.menuRevendeur;
@@ -23,7 +24,7 @@ public class Main {
     public final static String REVENDEURS = "Revendeurs/";
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
-
+    public final static String EMAILS = DATABASE_PATH + "emails.csv";
     public final static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     private static User connectedUser = null;
@@ -44,6 +45,7 @@ public class Main {
                     if (connectedUser == null)
                         continue;
                     System.out.print("\nRebonjour " + connectedUser.getUsername() + " ! ");
+                    connectedUser.save();
                     if (connectedUser.isAcheteur())
                         menuAcheteur((Acheteur) connectedUser);
                     else
@@ -57,7 +59,28 @@ public class Main {
         }
     }
 
-    // TEST
+    public static boolean choixOuiNon() {
+        System.out.println("1. Oui\n2. Non");
+        try {
+            while (true) {
+                String reponseS = br.readLine();
+                try {
+                    short reponse = Short.parseShort(reponseS);
+                    if (reponse == 1 || reponse == 2)
+                        return reponse == 1;
+                    else
+                        System.out.println("Choix invalide! Veuillez entrer un choix de 1 à 2");
+                }
+                catch(NumberFormatException e){
+                    System.out.println("Veuillez entrer un chiffre de 1 à 2");
+                }
+            }
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public static short selectionChoix(Object[] choix) {
         int nbChoix = choix.length;
         for (int i = 0; i < nbChoix; ++i) {
@@ -90,7 +113,7 @@ public class Main {
         choix = selectionChoix(new String[]{"Acheteur", "Revendeur", "Revenir au menu principal"});
         if (choix == 3)
             return;
-        System.out.println("Remplissez le formulaire pour créer un compte:");
+        System.out.println("\nRemplissez le formulaire pour créer un compte:");
         System.out.print("Entrez votre username: ");
         try {
             String username = br.readLine();
@@ -104,6 +127,13 @@ public class Main {
             String motDePasse = br.readLine();
             System.out.print("Entrez votre courriel: ");
             String courriel = br.readLine();
+            ArrayList<String> emails = iniArrayList(lireFichierEnEntier(EMAILS)[0]);
+            while (emails.contains(courriel) || courriel.isEmpty()) {
+                System.out.print("Un compte a déjà été créé avec ce courriel. Veuillez en entrer un autre: ");
+                courriel = br.readLine();
+            }
+            emails.add(courriel);
+            ecrireFichierEntier(EMAILS, String.join(",", emails));
             System.out.print("Entrez votre téléphone: ");
             long telephone = demanderLong("un téléphone");
             System.out.print("Entrez votre adresse: ");
@@ -116,9 +146,10 @@ public class Main {
                 String prenom = br.readLine();
                 if (new File(basePath).mkdir() && new File(basePath + "/Commandes").mkdir()) {
                     String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, nom, prenom,
-                            "0,0"};
+                            "0,0", "" + obtenirTempsEnSecondes()};
                     ecrireFichierEntier(basePath + "/Infos.csv", String.join(",", infos) + "\n\n\n");
                     ecrireFichierEntier(basePath + "/Panier.csv", "0,0");
+                    ecrireFichierEntier(basePath + "Evaluations.csv", "");
                     System.out.println("Inscription du compte acheteur " + username + " réussi!");
                 }
                 else
@@ -127,7 +158,8 @@ public class Main {
             } else {
                 String basePath = USERS_PATH + REVENDEURS + username;
                 if (new File(basePath).mkdir() && new File(basePath + "/Commandes").mkdir()) {
-                    String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0,0,0" };
+                    String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0,0,0, ",
+                            "" + obtenirTempsEnSecondes() };
                     ecrireFichierEntier(basePath + "/Infos.csv", String.join(",", infos) + "\n\n");
                     System.out.println("Inscription du compte revendeur " + username + " réussi!");
                 }
@@ -172,6 +204,16 @@ public class Main {
                 System.out.print("Mauvais mot de passe! Veuillez recommencer: ");
                 passwordEntre = br.readLine();
             }
+            if (infos.length == 9) {
+                long creationTime = Long.parseLong(infos[8]);
+                if (obtenirTempsEnSecondes() - creationTime > 86400) {
+                    System.out.println("\nCe compte a été créé il y a plus de 24h et est donc invalide! Veuillez créer"+
+                            "un nouveau compte!");
+                    effacerFichier(USERS_PATH + categorie + username);
+                }
+                else
+                    System.out.println("Votre compte est maintenant activé!");
+            }
             if (categorie.equals(ACHETEURS)){
                 return initialiserAcheteur(username);
             }
@@ -205,7 +247,13 @@ public class Main {
             Produit p = initialiserProduit(s[j]);
             panier.addInitial(p);
         }
-
+        ArrayList<Evaluation> es = new ArrayList<>();
+        s = lireFichierEnEntier(path + "Evaluations.csv");
+        for (String e : s) {
+            String[] ea = e.split(",");
+            es.add(new Evaluation(username, Integer.parseInt(ea[0]), ea[1], Integer.parseInt(ea[2]),
+                    Boolean.parseBoolean(ea[3])));
+        }
         ArrayList<Commande> cmds = new ArrayList<>();
         String commandesPath = path + "Commandes/";
         for (String l : fichiersDansDossier(commandesPath)) {
@@ -224,13 +272,14 @@ public class Main {
         }
         return new Acheteur(username, infos[0], infos[1], Long.parseLong(infos[2]),
                 infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), Integer.parseInt(infos[7]), as, rl, bis,
-                panier, cmds);
+                panier, cmds, es);
     }
     static Revendeur initialiserRevendeur(String username) throws IOException {
         String path = USERS_PATH + REVENDEURS + username + "/";
         String[] data = lireFichierEnEntier( path+ "Infos.csv");
         String[] infos = data[0].split(",");
         ArrayList<String> followers = iniArrayList(data[1]);
+        ArrayList<String> cats = iniArrayList(data[2]);
         ArrayList<Billet> bis = new ArrayList<>();
         for (int i = 2; i < data.length; ++i) {
             String[] bs = data[i].split(",");
@@ -244,7 +293,7 @@ public class Main {
                 ps.add(initialiserProduit(pc));
         }
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
-                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>());
+                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cats);
     }
     static Produit initialiserProduit(String titreProduit) throws IOException{
         String path = PRODUITS_PATH + titreProduit;
@@ -268,15 +317,14 @@ public class Main {
         Evaluation[] evals = new Evaluation[s.length - 5];
         for (int i = 5; i < s.length; ++i) {
             String[] e = s[i].split(",");
-            evals[i - 5] = new Evaluation(e[0], Byte.parseByte(e[1]), e[2]);
+            evals[i - 5] = new Evaluation(e[0], Integer.parseInt(e[1]), e[2], Integer.parseInt(e[3]),
+                    Boolean.parseBoolean(e[4]));
         }
         ArrayList<Evaluation> evalsL = new ArrayList<>(Arrays.asList(evals));
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evalsL);
     }
-
-    // TEST
-    public static int demanderIntPositif(String demande) throws IOException {
+    static int demanderIntPositif(String demande) throws IOException {
         int i;
         while (true) {
             try {
@@ -292,9 +340,7 @@ public class Main {
             }
         }
     }
-
-    // TEST
-    public static long demanderLong(String demande) throws IOException {
+    static long demanderLong(String demande) throws IOException {
         long l;
         while (true) {
             try {
@@ -306,9 +352,7 @@ public class Main {
             }
         }
     }
-
-    // TEST
-    public static float demanderFloat(String demande) throws IOException {
+    static float demanderFloat(String demande) throws IOException {
         float prix;
         while (true) {
             try {
@@ -328,7 +372,9 @@ public class Main {
     public static float arrondirPrix(float prix) {
         return Math.round((prix) * 100) / 100f;
     }
-
+    public static long obtenirTempsEnSecondes() {
+        return System.currentTimeMillis() / 1000;
+    }
     public static String[] lireFichierEnEntier(String path) throws IOException {
         return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8).toArray(new String[0]);
     }
@@ -341,13 +387,10 @@ public class Main {
             e.printStackTrace();
         }
     }
-
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
     }
-
-    // TEST
-    public static ArrayList<String> iniArrayList(String s) {
+    static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
             return new ArrayList<>(Arrays.asList(tab).subList(1, tab.length));
@@ -355,9 +398,18 @@ public class Main {
             return new ArrayList<>(Arrays.asList(tab));
 
     }
-
-
     public static String getConnectedUsername() {
         return connectedUser.getUsername();
+    }
+    public static void effacerFichier(String path) {
+        File file = new File(path);
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                effacerFichier(f.getPath());
+            }
+        }
+        if (!file.delete())
+            System.out.println("Compte pas effacé: " + file);
     }
 }

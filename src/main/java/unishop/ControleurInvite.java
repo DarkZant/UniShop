@@ -1,9 +1,11 @@
 package unishop;
 
+import unishop.Categories.Categorie;
 import unishop.Users.Acheteur;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static unishop.Main.*;
 
@@ -29,28 +31,26 @@ public class ControleurInvite {
             while (true) {
                 System.out.print("\nEntrer le nom d'un acheteur (N'entrez rien pour la liste de tous les acheteurs): ");
                 Acheteur acheteur;
-                String a = br.readLine();
+                String aEntre = br.readLine();
                 ArrayList<String> as = new ArrayList<>(fichiersDansDossier(USERS_PATH + ACHETEURS));
-                as.add("Faire une nouvelle recherche");
-                as.add("Retourner au menu");
-                if (a.isEmpty()) {
-                    System.out.println("Sélectionnez une option: ");
-                    choix = selectionChoix(as.toArray());
-                    if (choix == as.size() - 2)
-                        continue;
-                    else if (choix == as.size() - 1)
-                        return;
-                    acheteur = initialiserAcheteur(as.get(choix));
+                ArrayList<String> aSelect = new ArrayList<>();
+                for (String a : fichiersDansDossier(USERS_PATH + ACHETEURS)) {
+                    if (a.contains(aEntre))
+                        aSelect.add(a);
                 }
-                else {
-                    if (as.contains(a)) {
-                        acheteur = initialiserAcheteur(a);
-                    }
-                    else {
-                        System.out.println("\nCet acheteur n'existe pas! Veuillez réessayer.");
-                        continue;
-                    }
+                if (aSelect.isEmpty()) {
+                    System.out.println("Aucun acheteur ne correspond à cette recherche! Veuillez réessayer.");
+                    continue;
                 }
+                aSelect.add("Faire une nouvelle recherche");
+                aSelect.add("Retourner au menu");
+                System.out.println("Sélectionnez une option: ");
+                choix = selectionChoix(aSelect.toArray());
+                if (choix == aSelect.size() - 2)
+                    continue;
+                else if (choix == aSelect.size() - 1)
+                    return;
+                acheteur = initialiserAcheteur(aSelect.get(choix - 1));
                 while (true) {
                     System.out.println("\nVoici les informations sur " + acheteur.getUsername() + ": " +
                             acheteur.afficherMetriques());
@@ -62,10 +62,10 @@ public class ControleurInvite {
                     else if (choix == 4)
                         return;
                     if (choix == 1)
-                        as = acheteur.getFollowers();
+                        aSelect = acheteur.getFollowers();
                     else
-                        as = acheteur.getSuivis();
-                    if (as.isEmpty()) {
+                        aSelect = acheteur.getSuivis();
+                    if (aSelect.isEmpty()) {
                         if (choix == 1)
                             System.out.println("\n" + acheteur.getUsername() + " n'a aucun follower!");
                         else
@@ -73,8 +73,8 @@ public class ControleurInvite {
                         continue;
                     }
                     System.out.println("\nChoississez un acheteur: ");
-                    choix = selectionChoix(as.toArray());
-                    acheteur = initialiserAcheteur(as.get(choix));
+                    choix = selectionChoix(aSelect.toArray());
+                    acheteur = initialiserAcheteur(aSelect.get(choix));
                 }
 
             }
@@ -85,7 +85,134 @@ public class ControleurInvite {
 
     }
     static void trouverProduits() {
+        try {
+            while (true) {
+                System.out.println("\nQuel type de recherche voulez-vous faire?");
+                ArrayList<String> pSelect = new ArrayList<>();
+                List<String> produits = fichiersDansDossier(PRODUITS_PATH);
+                boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
+                        "Recherche par filtre"});
+                String recherche = "";
+                short choixCat = 0;
+                boolean estPrixPlusGrand = false;
+                float floatDemande = 0;
+                int nbLikesDemande = 0;
+                if (estRecherche) {
+                    System.out.print("Entrez votre recherche: ");
+                    recherche = br.readLine();
+                } else {
+                    System.out.println("Choisissez votre type de filtre: ");
+                    choix = selectionChoix(new String[]{"Catégorie", "Prix", "Popularité", "Note moyenne",
+                            "Promotion"});
+                    switch (choix) {
+                        case 1 -> {
+                            System.out.println("Choisissez une catégorie: ");
+                            choixCat = selectionChoix(Categorie.categories);
+                            --choixCat;
+                        }
+                        case 2 -> {
+                            System.out.println("Filtrer par plus petit ou plus grand?");
+                            estPrixPlusGrand = 1 == selectionChoix(new String[]{"Plus petit", "Plus grand"});
+                            System.out.print("Entrez un prix: ");
+                            floatDemande = demanderFloat("un prix");
+                        }
+                        case 3 -> {
+                            System.out.print("Entrez un nombre minimum de likes: ");
+                            nbLikesDemande = demanderIntPositif("un nombre de likes");
+                        }
+                        case 4 -> {
+                            System.out.print("Entrez une note moyenne minimale: ");
+                            floatDemande = demanderFloat("une note");
+                        }
+                    }
+                }
 
+                for (String p : produits) {
+                    String[] contenu = lireFichierEnEntier(PRODUITS_PATH + p);
+                    String[] infos = contenu[0].split(",");
+                    String[] cat = contenu[3].split(",");
+                    String produitPreview = String.join(", ", infos[1],
+                            Categorie.getCat(Integer.parseInt(cat[0])), "Revendeur: " + infos[0]);
+                    if (estRecherche) {
+                        if ((infos[1] + infos[2] + cat[1] + cat[2] + cat[3]).contains(recherche))
+                            pSelect.add(produitPreview);
+                    } else {
+                        switch (choix) {
+                            case 1 -> {
+                                short pCat = Short.parseShort(cat[0]);
+                                if (choixCat == pCat)
+                                    pSelect.add(produitPreview);
+                            }
+                            case 2 -> {
+                                float prix = Float.parseFloat(infos[3]);
+                                if (estPrixPlusGrand) {
+                                    if (prix <= floatDemande)
+                                        pSelect.add(produitPreview);
+                                } else {
+                                    if (prix >= floatDemande)
+                                        pSelect.add(produitPreview);
+                                }
+                            }
+                            case 3 -> {
+                                String[] nbLikesS = contenu[4].split(",");
+                                int nbLikes = nbLikesS.length;
+                                if (nbLikesS[0].isEmpty())
+                                    nbLikes = 0;
+                                if (nbLikes >= nbLikesDemande)
+                                    pSelect.add(produitPreview);
+                            }
+                            case 4 -> {
+                                float noteMoyenne = Float.parseFloat(infos[6]);
+                                if (noteMoyenne >= floatDemande)
+                                    pSelect.add(produitPreview);
+                            }
+                            case 5 -> {
+                                if (Integer.parseInt(infos[5]) != 0)
+                                    pSelect.add(produitPreview);
+                            }
+                        }
+                    }
+                }
+                if (pSelect.isEmpty()) {
+                    System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
+                    continue;
+                }
+                pSelect.add("Faire une nouvelle recherche");
+                pSelect.add("Retourner au menu principal");
+                while (true) {
+                    System.out.println("\nChoisissez un produit: ");
+                    choix = selectionChoix(pSelect.toArray());
+                    if (choix == pSelect.size() - 1)
+                        break;
+                    else if (choix == pSelect.size())
+                        return;
+                    Produit p = initialiserProduit(pSelect.get(choix - 1).split(",")[0]);
+                    System.out.println("\n" + p.getFormatDisplay());
+                    while (true) {
+                        System.out.println("\nQue voulez-vous faire ensuite?");
+                        choix = selectionChoix(new String[]{"Regarder les évaluations", "Voir les likes",
+                                "Retourner au résultat de la recherche"});
+                        if (choix == 3)
+                            break;
+                        switch (choix) {
+                            case 1 -> System.out.println("\n" + p.getEvaluationsDisplay());
+                            case 2 -> {
+                                ArrayList<String> ar = p.voirLikes();
+                                String[] as = ar.toArray(new String[0]);
+                                if (as.length == 1)
+                                    System.out.println("\nCe produit n'a aucun likes.");
+                                else
+                                    System.out.println("\nVoici la liste des likes:\n" + String.join("\n", as));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
+        }
     }
     static void trouverRevendeur() {
 

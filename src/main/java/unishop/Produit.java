@@ -58,7 +58,7 @@ public class Produit {
         if(evaluations.isEmpty())
             sj.add("");
         for(Evaluation e : evaluations)
-            sj.add(e.getSaveFormat());
+            sj.add(e.getSaveFormatProduit());
         Main.ecrireFichierEntier(Main.PRODUITS_PATH + titre + Main.CSV, sj.toString());
     }
     public String getFormatDisplay() {
@@ -131,6 +131,9 @@ public class Produit {
                 sj.add(e.getDisplayFormat());
             return sj.toString();
         }
+    }
+    public ArrayList<Evaluation> getEvaluations() {
+        return new ArrayList<>(evaluations);
     }
     public boolean aDesEvaluations() {return this.evaluations.isEmpty();}
     public ArrayList<String> voirLikes() {
