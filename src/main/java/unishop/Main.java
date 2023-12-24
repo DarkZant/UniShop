@@ -56,6 +56,8 @@ public class Main {
             }
         }
     }
+
+    // TEST
     public static short selectionChoix(Object[] choix) {
         int nbChoix = choix.length;
         for (int i = 0; i < nbChoix; ++i) {
@@ -272,7 +274,9 @@ public class Main {
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evalsL);
     }
-    static int demanderIntPositif(String demande) throws IOException {
+
+    // TEST
+    public static int demanderIntPositif(String demande) throws IOException {
         int i;
         while (true) {
             try {
@@ -288,7 +292,9 @@ public class Main {
             }
         }
     }
-    static long demanderLong(String demande) throws IOException {
+
+    // TEST
+    public static long demanderLong(String demande) throws IOException {
         long l;
         while (true) {
             try {
@@ -300,7 +306,9 @@ public class Main {
             }
         }
     }
-    static float demanderFloat(String demande) throws IOException {
+
+    // TEST
+    public static float demanderFloat(String demande) throws IOException {
         float prix;
         while (true) {
             try {
@@ -331,10 +339,13 @@ public class Main {
             e.printStackTrace();
         }
     }
+
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
     }
-    static ArrayList<String> iniArrayList(String s) {
+
+    // TEST
+    public static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
             return new ArrayList<>(Arrays.asList(tab).subList(1, tab.length));
@@ -342,6 +353,8 @@ public class Main {
             return new ArrayList<>(Arrays.asList(tab));
 
     }
+
+
     public static String getConnectedUsername() {
         return connectedUser.getUsername();
     }
