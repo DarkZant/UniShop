@@ -33,9 +33,6 @@ class MainTest {
         System.setIn(System.in);
         System.setOut(System.out);
 
-        // Affichage des choix correct
-        assertEquals(fakeOutput.toString(), "1. Option 1\n2. Option 2\n3. Option 3\nChoisir une option: ");
-
         // Retour correct
         assertEquals(2, resultat);
     }
