@@ -3,6 +3,7 @@ package unishop.Users;
 import unishop.*;
 
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.StringJoiner;
 
 public class Acheteur extends User{
@@ -20,8 +21,8 @@ public class Acheteur extends User{
     public Acheteur(String u, String p, String em, long phone, String address, String nom,
                     String prenom, int points, int likes, ArrayList<String> acheteursSuivis,
                     ArrayList<String> revendeursLikes, ArrayList<Billet> b, Commande panier, ArrayList<Commande> cmds,
-                    ArrayList<Evaluation> es){
-        super(u, p, em, phone, address, b, cmds);
+                    ArrayList<Evaluation> es, Stack<Notification> ns){
+        super(u, p, em, phone, address, b, cmds, ns);
         this.nom = nom;
         this.prenom = prenom;
         this.points = points;
@@ -92,6 +93,11 @@ public class Acheteur extends User{
     public void ajouterPoints(int pts) {
         this.points += pts;
     }
+    public int viderPoints() {
+        int pts = this.points;
+        this.points = 0;
+        return pts;
+    }
     public void ajouterEvaluation(Evaluation e) {
         this.evaluations.add(e);
         saveEvals();
@@ -113,6 +119,14 @@ public class Acheteur extends User{
                 return true;
         }
         return false;
+    }
+    @Override
+    public void saveNotifications() {
+        StringJoiner sj = new StringJoiner("\n");
+        for (Notification n : notifications)
+            sj.add(n.saveFormat());
+        Main.ecrireFichierEntier(Main.USERS_PATH + Main.ACHETEURS + username + "/Notifications.csv",
+                sj.toString());
     }
 
     // TEST

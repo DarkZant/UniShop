@@ -23,12 +23,12 @@ public class ControleurRevendeur {
                     "Voir les notifications", "Se déconnecter"});
             switch (choix) {
                 case 1 -> offrirProduit();
-                case 2 -> gererCommandesRevendeur();
-                case 3 -> gererBilletsRevendeur();
+                case 2 -> gererCommandes();
+                case 3 -> gererBillets();
                 case 4 -> modifierProduit();
                 case 5 -> changerInformations();
                 case 6 -> System.out.println(revendeur.afficherMetriques());
-                case 7 -> System.out.println(afficherNotifications());
+                case 7 -> System.out.println("\n" + revendeur.voirNotifications());
                 case 8 -> {return;}
             }
         }
@@ -167,10 +167,10 @@ public class ControleurRevendeur {
         String modele = br.readLine();
         return new CBureau(marque, modele, sousCat);
     }
-    static void gererCommandesRevendeur() {
+    static void gererCommandes() {
         System.out.println("\nTODO");
     }
-    static void gererBilletsRevendeur() {
+    static void gererBillets() {
         ArrayList<Billet> ba = revendeur.getBillets();
         if (ba.isEmpty()) {
             System.out.println("\nVous n'avez aucun billet!");
@@ -241,46 +241,67 @@ public class ControleurRevendeur {
     static void modifierProduit () {
         while (true) {
             System.out.println("\nChoisir une option: ");
-            choix = selectionChoix(new String[] {"Restocker un produit", "Gérer une promotion", "Retourner au menu"});
-            if (choix == 3)
+            choix = selectionChoix(new String[] {"Restocker un produit", "Gérer une promotion", "Ajouter des médias",
+                    "Retourner au menu"});
+            if (choix == 4)
                 return;
             Produit p = revendeur.getProduitAvecChoix();
-            if (choix == 1) {
-                System.out.print("Entrez la quantité que vous voulez ajouter à l'inventaire: ");
-                try {
-                    p.restocker(demanderIntPositif("une quantité"));
-                    System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre + " en inventaire!");
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-                continue;
-            }
-            while (true) {
-                System.out.println("\nQue voulez-vous faire avec la promotion?");
-                choix = selectionChoix(new String[] {"Enlever la promotion", "Modifier la promotion", "" +
-                        "Retourner au menu"});
-                if (choix == 3)
-                    break;
-                if (choix == 1) {
-                    if (p.estEnPromotion()) {
-                        p.enleverPromotion();
-                        System.out.println("\nVous avez enlevé la promotion de " + p.titre + "!");
-                    }
-                    else
-                        System.out.println("\nCe produit n'est pas en promotion!");
-
-                }
-                else {
-                    int pointsMax = (int) Math.floor(p.prix * 19);
-                    System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
+            switch (choix) {
+                case 1 -> {
+                    System.out.print("Entrez la quantité que vous voulez ajouter à l'inventaire: ");
                     try {
-                        int pts = demanderIntPositif("un nombre de points");
-                        while (pts > pointsMax || pts == 0) {
-                            System.out.print("Vous avez entré un nombre de points invalide! Veuillez réessayer: ");
-                            pts = demanderIntPositif("un nombre de points");
+                        p.restocker(demanderIntPositif("une quantité"));
+                        System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre + " en inventaire!");
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                case 2 -> {
+                    while (true) {
+                        System.out.println("\nQue voulez-vous faire avec la promotion?");
+                        choix = selectionChoix(new String[] {"Enlever la promotion", "Modifier la promotion", "" +
+                                "Retourner au menu"});
+                        if (choix == 3)
+                            break;
+                        if (choix == 1) {
+                            if (p.estEnPromotion()) {
+                                p.enleverPromotion();
+                                System.out.println("\nVous avez enlevé la promotion de " + p.titre + "!");
+                            }
+                            else
+                                System.out.println("\nCe produit n'est pas en promotion!");
+
                         }
-                        p.changerPromotion((int)Math.floor(p.prix) + pts);
-                        System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts + " points!");
+                        else {
+                            int pointsMax = (int) Math.floor(p.prix * 19);
+                            System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
+                            try {
+                                int pts = demanderIntPositif("un nombre de points");
+                                while (pts > pointsMax || pts == 0) {
+                                    System.out.print("Vous avez entré un nombre de points invalide! Veuillez réessayer: ");
+                                    pts = demanderIntPositif("un nombre de points");
+                                }
+                                p.changerPromotion((int)Math.floor(p.prix) + pts);
+                                System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts + " points!");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                case 3 -> {
+                    try {
+                        System.out.println("Voulez-vous ajouter des images ou des vidéos?");
+                        if (1 == selectionChoix(new String[] {"Images", "Vidéos"})) {
+                            System.out.print("Entrer les liens vers les images séparés par des virgules: ");
+                            String[] imgs = br.readLine().split(",");
+                            p.ajouterImages(imgs);
+                        }
+                        else {
+                            System.out.print("Entrer les liens vers les vidéos séparés par des virgules: ");
+                            String[] vids = br.readLine().split(",");
+                            p.ajouterVideos(vids);
+                        }
 
                         // TODO NOTIF
                         List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
@@ -302,8 +323,5 @@ public class ControleurRevendeur {
     }
     static void changerInformations() {
         System.out.println("\nTODO");
-    }
-    static String afficherNotifications() {
-        return "\nTODO";
     }
 }

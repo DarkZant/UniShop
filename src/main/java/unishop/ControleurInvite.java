@@ -2,9 +2,11 @@ package unishop;
 
 import unishop.Categories.Categorie;
 import unishop.Users.Acheteur;
+import unishop.Users.Revendeur;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static unishop.Main.*;
@@ -32,7 +34,6 @@ public class ControleurInvite {
                 System.out.print("\nEntrer le nom d'un acheteur (N'entrez rien pour la liste de tous les acheteurs): ");
                 Acheteur acheteur;
                 String aEntre = br.readLine();
-                ArrayList<String> as = new ArrayList<>(fichiersDansDossier(USERS_PATH + ACHETEURS));
                 ArrayList<String> aSelect = new ArrayList<>();
                 for (String a : fichiersDansDossier(USERS_PATH + ACHETEURS)) {
                     if (a.contains(aEntre))
@@ -215,6 +216,85 @@ public class ControleurInvite {
         }
     }
     static void trouverRevendeur() {
+        try {
+            while (true) {
+                System.out.println("\nQuel type de recherche voulez-vous faire?");
+                ArrayList<String> revendeurSelect = new ArrayList<>();
+                List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+                String demandeUtilisateur = "";
+                boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
+                        "Recherche par filtre"});
 
+                if (estRecherche) {
+                    System.out.print("Entrez votre recherche: ");
+                    demandeUtilisateur = br.readLine();
+                } else {
+                    System.out.println("Choisissez votre type de filtre: ");
+                    choix = selectionChoix(new String[]{"Catégorie de produits vendues", "Nom", "Adresse"});
+                    switch (choix) {
+                        case 1 -> {
+                            System.out.println("Choisissez une catégorie: ");
+                            demandeUtilisateur = Categorie.getCat(selectionChoix(Categorie.categories) - 1);
+
+                        }
+                        case 2 -> {
+                            System.out.println("Choisissez un nom :");
+                            demandeUtilisateur = br.readLine();
+
+                        }
+                        case 3 -> {
+                            System.out.print("Choisissez une adresse ");
+                            demandeUtilisateur = br.readLine();
+                        }
+                    }
+                }
+
+                for (String r : revendeurs) {
+                    String[] contenu = lireFichierEnEntier(USERS_PATH + REVENDEURS + r + "/Infos.csv");
+                    String adresse = contenu[0].split(",")[5];
+                    List<String> categories = Arrays.asList(contenu[2].split(","));
+
+                    if (estRecherche) {
+                        if (r.contains(demandeUtilisateur))
+                            revendeurSelect.add(r);
+                    } else {
+                        switch (choix) {
+                            case 1 -> {
+                                if (categories.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                            case 2 -> {
+                                if (r.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                            case 3 -> {
+                                if (adresse.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                        }
+                    }
+                }
+                if (revendeurSelect.isEmpty()) {
+                    System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
+                    return;
+                }
+                revendeurSelect.add("Faire une nouvelle recherche");
+                revendeurSelect.add("Retourner au menu acheteur");
+                while (true) {
+                    System.out.println("\nChoisissez un revendeur: ");
+                    choix = selectionChoix(revendeurSelect.toArray());
+                    if (choix == revendeurSelect.size() - 1)
+                        break;
+                    else if (choix == revendeurSelect.size())
+                        return;
+                    Revendeur r = initialiserRevendeur(revendeurSelect.get(choix - 1));
+                    System.out.println("\n" + r.afficherMetriques() + "\n");
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
+        }
     }
 }

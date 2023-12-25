@@ -4,6 +4,7 @@ import unishop.*;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.StringJoiner;
 
 public abstract class User {
 
@@ -17,7 +18,7 @@ public abstract class User {
     protected Stack<Notification> notifications;
 
     protected User(String username, String password, String email, long phone, String address,
-                   ArrayList<Billet> billets, ArrayList<Commande> commandes) {
+                   ArrayList<Billet> billets, ArrayList<Commande> commandes, Stack<Notification> ns) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -25,6 +26,7 @@ public abstract class User {
         this.address = address;
         this.billets = new ArrayList<>(billets);
         this.commandes = new ArrayList<>(commandes);
+        this.notifications = ns;
 
     }
     public abstract void save();
@@ -33,6 +35,12 @@ public abstract class User {
     public void addBillet(Billet b) {
         this.billets.add(b);
         save();
+    }
+    public String voirNotifications() {
+        StringJoiner sj = new StringJoiner("\n");
+        for (int i = 0; i < notifications.size(); ++i)
+            sj.add(notifications.pop().afficher());
+        return sj.toString();
     }
     public ArrayList<Billet> getBillets() {
         return new ArrayList<>(billets);
@@ -68,5 +76,9 @@ public abstract class User {
     public void setAddress(String address) {
         this.address = address;
     }
-    public void addNotifications(Notification n) {notifications.push(n);}
+    public abstract void saveNotifications();
+    public void addNotifications(Notification n) {
+        this.notifications.push(n);
+        saveNotifications();
+    }
 }

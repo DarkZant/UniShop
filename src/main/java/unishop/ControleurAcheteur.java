@@ -23,9 +23,9 @@ public class ControleurAcheteur {
                     "Rechercher un revendeur", "Gérer les acheteur suivis",
                     "Afficher les métriques", "Voir les notifications", "Se déconnecter"});
             switch (choix) {
-                case 1 -> gererCommandesAcheteur();
+                case 1 -> gererCommandes();
                 case 2 -> allerAuPanier();
-                case 3 -> gererBilletsAcheteur();
+                case 3 -> gererBillets();
                 case 4 -> changerInformations();
                 case 5 -> {
                     short c = rechercherProduits();
@@ -37,7 +37,7 @@ public class ControleurAcheteur {
                 case 6 -> rechercherRevendeur();
                 case 7 -> gererAcheteursSuivis();
                 case 8 -> System.out.println(acheteur.afficherMetriques());
-                case 9 -> System.out.println(afficherNotifications());
+                case 9 -> System.out.println("\n" + acheteur.voirNotifications());
                 case 10 -> {
                     return;
                 }
@@ -170,6 +170,10 @@ public class ControleurAcheteur {
                                 return 2;
                         }
                         case 3 -> {
+                            if (p.getEvaluations().isEmpty()) {
+                                System.out.println("\nCe produit n'a aucune évaluations!");
+                                break;
+                            }
                             System.out.println("\nChoississez une évaluation:");
                             ArrayList<Evaluation> es = p.getEvaluations();
                             ArrayList<String> ess = new ArrayList<>();
@@ -261,7 +265,7 @@ public class ControleurAcheteur {
         return 0;
 
     }
-    static void gererCommandesAcheteur() {
+    static void gererCommandes() {
         System.out.println("\nChoisissez une commande: ");
         ArrayList<Commande> cmds = acheteur.getCommandes();
         String[] cs = new String[cmds.size() + 1];
@@ -280,7 +284,7 @@ public class ControleurAcheteur {
         while (true) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Confirmer la livraison", "Retourner un produit", "Évaluer un produit",
-                    "Annuler la commande", "Retourner au menu"});
+                    "Annuler la commande", "Regarder la date d'arrivée estimée", "Retourner au menu"});
             switch (choix) {
                 case 1 -> {
                     switch (cmd.confirmerLivraison()) {
@@ -295,6 +299,15 @@ public class ControleurAcheteur {
                     }
                 }
                 case 2 -> {
+                    if (!cmd.estLivre()) {
+                        System.out.println("\nVotre commande n'a pas encore été livrée!");
+                        continue;
+                    }
+                    if (obtenirTempsEnSecondes() - cmd.getTempsReception() > 2592000) {
+                        System.out.println("\nVous avez passé le délai de 30 jours pour retourner une commande!");
+                        continue;
+                    }
+
                     Produit p = cmd.getChoixProduit(true);
                     if (p == null)
                         continue;
@@ -317,7 +330,15 @@ public class ControleurAcheteur {
                                 "", produitRempla, false);
                         acheteur.addBillet(b);
                         r.addBillet(b);
-                        //TODO créer nouvelle commande pour échange
+                        Produit pro = initialiserProduit(produitRempla);
+                        float differencePrix = arrondirPrix(pro.prix - p.prix);
+                        System.out.println("La différence de prix est de " + differencePrix + "$.");
+                        Commande echange = new Commande((short)0, differencePrix, 0);
+                        echange.addProduit(pro);
+                        echange.passerCommande(USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes",
+                                acheteur.getAddress());
+                        acheteur.ajouterCommande(echange);
+                        //TODO AJOUTER COMMANDE AU REVENDEUR
                         System.out.println("\nVotre demande " + (b.estRetour ? "de retour" : "d'échange") + " a été " +
                                 "traitée avec succès!");
 
@@ -327,6 +348,7 @@ public class ControleurAcheteur {
                         rev.addNotifications(notifRev);
 
                         System.out.println("Votre ID pour ce billet est: " + p.getId());
+                        System.out.println("L'ID de votre commande est " + echange.getId());
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -345,13 +367,21 @@ public class ControleurAcheteur {
                             effacerFichier(cmdpath + cmd.getId() + CSV);
                             acheteur.annulerCommande(cmd);
                             //TODO UPDATE COMMANDE REVENDEUR
+                            System.out.println("\nVous avez annulé votre commande #" + cmd.getId() + "!");
+                            return;
                         }
                     }
                     else
-                        System.out.println("Vous ne pouvez plus annuler votre commande!");
+                        System.out.println("\nVous ne pouvez plus annuler votre commande!");
 
                 }
-                case 5 -> {return;}
+                case 5 -> {
+                    if (cmd.estLivre())
+                        System.out.println("\nVotre commande est déjà livrée!");
+                    else
+                        System.out.println("\nVotre commande devrait arriver aujourd'hui le " + new java.util.Date());
+                }
+                case 6 -> {return;}
             }
         }
     }
@@ -380,6 +410,19 @@ public class ControleurAcheteur {
                         System.out.print("Entrez une nouvelle adresse: ");
                         adresse = br.readLine();
                     }
+                    System.out.println("Voulez-vous payer avec vos points?");
+                    if (choixOuiNon()) {
+                        float pointsEnDollars = arrondirPrix(acheteur.viderPoints() / 100f);
+                        float nouveauTotal = acheteur.panier.getCoutTotal() - pointsEnDollars;
+                        System.out.println("Vous avez l'équivalent de " + pointsEnDollars + "$ en points, ce qui " +
+                                "amène votre total à " + nouveauTotal + "$.");
+                    }
+                    System.out.print("Entrez votre numéro de carte de crédit: ");
+                    demanderLong("un numéro de carte de crédit");
+                    System.out.print("Entrez la date d'expiration de votre carte en format MMAA: ");
+                    demanderIntPositif("une date d'expiration");
+                    System.out.print("Entrez le CVV: ");
+                    demanderIntPositif("un CVV");
                     Commande c = acheteur.panier.passerCommande(USERS_PATH + ACHETEURS +
                             acheteur.getUsername() + "/Commandes", adresse);
                     acheteur.ajouterCommande(c.copy());
@@ -402,7 +445,7 @@ public class ControleurAcheteur {
             }
         }
     }
-    static void gererBilletsAcheteur() {
+    static void gererBillets() {
         ArrayList<Billet> ba = acheteur.getBillets();
         if (ba.isEmpty()) {
             System.out.println("\nVous n'avez aucun billet!");
@@ -474,9 +517,6 @@ public class ControleurAcheteur {
     static void changerInformations() {
         System.out.println("\nTODO");
     }
-    static String afficherNotifications() {
-        return "\nTODO";
-    }
     static void gererAcheteursSuivis() { System.out.println("\nTODO"); }
     static void rechercherRevendeur() {
         System.out.println("\nQuel type de recherche voulez-vous faire?");
@@ -486,7 +526,6 @@ public class ControleurAcheteur {
             String demandeUtilisateur = "";
             boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
                     "Recherche par filtre"});
-            String adressesDemande = "";
 
             if (estRecherche) {
                 System.out.print("Entrez votre recherche: ");

@@ -10,6 +10,7 @@ public class Commande {
     private float coutTotal;
     private int pointsTotal;
     private String date;
+    private long reception;
     private int id;
     private ArrayList<Produit> produits;
     private String adresse;
@@ -22,7 +23,7 @@ public class Commande {
     }
     public Commande copy() {
         Commande c = new Commande(etat, coutTotal, pointsTotal);
-        c.addPastInfo(id, date, adresse);
+        c.addPastInfo(id, date, adresse, reception);
         c.produits = new ArrayList<>(this.produits);
         return c;
     }
@@ -35,6 +36,10 @@ public class Commande {
         return pointsTotal;
     }
 
+    public float getCoutTotal() {
+        return coutTotal;
+    }
+
     public String getEtat(){
         return etats[etat];
     }
@@ -44,6 +49,7 @@ public class Commande {
     public short confirmerLivraison() {
         if (this.estEnLivraison()) {
             ++this.etat;
+            this.reception = Main.obtenirTempsEnSecondes();
             return 0;
         }
         else if (estLivre())
@@ -51,10 +57,11 @@ public class Commande {
         else
             return 1;
     }
-    public void addPastInfo(int id, String date, String adresse) {
+    public void addPastInfo(int id, String date, String adresse, long reception) {
         this.id = id;
         this.date = date;
         this.adresse = adresse;
+        this.reception = reception;
     }
     public void addInitial(Produit p) {
         produits.add(p);
@@ -63,6 +70,10 @@ public class Commande {
         this.produits.add(p);
         this.coutTotal = Main.arrondirPrix(this.coutTotal + p.prix);
         this.pointsTotal += p.getPoints();
+        save();
+    }
+    public void addProduitEchange(Produit p) {
+        this.produits.add(p);
         save();
     }
     public void removeProduit(Produit p) {
@@ -109,7 +120,7 @@ public class Commande {
     public void saveAfter(String userPath) {
         StringJoiner sj = new StringJoiner("\n");
         String[] base = new String[] {String.valueOf(id), date, String.valueOf(etat), String.valueOf(coutTotal),
-                String.valueOf(pointsTotal), adresse};
+                String.valueOf(pointsTotal), adresse, String.valueOf(reception)};
         sj.add(String.join(",", base));
         for(Produit p : this.produits) {
             sj.add(p.titre + "," + p.getId());
@@ -123,7 +134,7 @@ public class Commande {
         save();
     }
     public Produit getChoixProduit(boolean menuOption) {
-        System.out.println("Choisissez un produit: ");
+        System.out.println("\nChoisissez un produit: ");
         Produit[] ps = produits.toArray(new Produit[0]);
         String[] s;
         if (menuOption)
@@ -163,5 +174,10 @@ public class Commande {
         return "ID: " + id + " ; Date: " + date + " ; Total: " + coutTotal + "$";
     }
     public ArrayList<Produit> getProduitsP() { return new ArrayList<>(this.produits);}
-
+    public long getTempsReception() {
+        return this.reception;
+    }
+    public String getDate() {
+        return date;
+    }
 }

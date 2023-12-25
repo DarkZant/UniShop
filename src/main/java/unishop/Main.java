@@ -63,6 +63,7 @@ public class Main {
         System.out.println("1. Oui\n2. Non");
         try {
             while (true) {
+                System.out.print("Choisir une option: ");
                 String reponseS = br.readLine();
                 try {
                     short reponse = Short.parseShort(reponseS);
@@ -261,7 +262,10 @@ public class Main {
             String[] fstLine = all[0].split(",");
             Commande c = new Commande(Short.parseShort(fstLine[2]), Float.parseFloat(fstLine[3]),
                     Integer.parseInt(fstLine[4]));
-            c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5]);
+            long rec = 0;
+            if (c.estLivre())
+                rec = Long.parseLong(fstLine[6]);
+            c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5], rec);
             for (int j = 1; j < all.length; ++j) {
                 String[] line = all[j].split(",");
                 Produit p = initialiserProduit(line[0]);
@@ -270,9 +274,14 @@ public class Main {
             }
             cmds.add(c);
         }
+        Stack<Notification> notifs = new Stack<>();
+        for (String l : lireFichierEnEntier(path + "Notifications.csv")) {
+            String[] n = l.split(",");
+            notifs.push(new Notification(Integer.parseInt(n[0]), n[1], n[2], n[3], Integer.parseInt(n[4])));
+        }
         return new Acheteur(username, infos[0], infos[1], Long.parseLong(infos[2]),
                 infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), Integer.parseInt(infos[7]), as, rl, bis,
-                panier, cmds, es);
+                panier, cmds, es, notifs);
     }
     static Revendeur initialiserRevendeur(String username) throws IOException {
         String path = USERS_PATH + REVENDEURS + username + "/";
@@ -281,7 +290,7 @@ public class Main {
         ArrayList<String> followers = iniArrayList(data[1]);
         ArrayList<String> cats = iniArrayList(data[2]);
         ArrayList<Billet> bis = new ArrayList<>();
-        for (int i = 2; i < data.length; ++i) {
+        for (int i = 3; i < data.length; ++i) {
             String[] bs = data[i].split(",");
             bis.add(new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
                     Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8])));
@@ -292,8 +301,14 @@ public class Main {
             if (r.equals(username))
                 ps.add(initialiserProduit(pc));
         }
+        Stack<Notification> notifs = new Stack<>();
+        for (String l : lireFichierEnEntier(path + "Notifications.csv")) {
+            String[] n = l.split(",");
+            notifs.push(new Notification(Integer.parseInt(n[0]), n[1], n[2], n[3], Integer.parseInt(n[4])));
+        }
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
-                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cats);
+                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cats,
+                notifs);
     }
     static Produit initialiserProduit(String titreProduit) throws IOException{
         String path = PRODUITS_PATH + titreProduit;

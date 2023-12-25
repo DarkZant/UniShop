@@ -3,6 +3,7 @@ package unishop.Users;
 import unishop.*;
 
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.StringJoiner;
 
 public class Revendeur extends User{
@@ -16,8 +17,8 @@ public class Revendeur extends User{
 
     public Revendeur(String u, String p, String email, long phone, String address, float revenu,
                      int nbProduitsVendus, ArrayList<String> followers, ArrayList<Billet> b, ArrayList<Produit> ps,
-                     ArrayList<Commande> cmds, ArrayList<String> cV) {
-        super(u, p, email, phone, address, b, cmds);
+                     ArrayList<Commande> cmds, ArrayList<String> cV, Stack<Notification> ns) {
+        super(u, p, email, phone, address, b, cmds, ns);
         this.revenu = revenu;
         this.nbProduitsVendus = nbProduitsVendus;
         this.followers = new ArrayList<>(followers);
@@ -70,7 +71,14 @@ public class Revendeur extends User{
                 "$\nNombre de produits vendus: " + nbProduitsVendus +
                 "\nCatégorie vendues : " + String.join(", ", categorieVendu);
     }
-
+    @Override
+    public void saveNotifications() {
+        StringJoiner sj = new StringJoiner("\n");
+        for (Notification n : notifications)
+            sj.add(n.saveFormat());
+        Main.ecrireFichierEntier(Main.USERS_PATH + Main.REVENDEURS + username + "/Notifications.csv",
+                sj.toString());
+    }
     public void ajouterFollower(String acheteur) {
         followers.add(acheteur);
         save();
@@ -78,5 +86,4 @@ public class Revendeur extends User{
     public boolean estDejaSuiviPar(String acheteur) {
         return this.followers.contains(acheteur);
     }
-
 }

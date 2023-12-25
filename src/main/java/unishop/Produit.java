@@ -3,6 +3,7 @@ package unishop;
 import unishop.Categories.Categorie;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringJoiner;
 
 public class Produit {
@@ -13,8 +14,8 @@ public class Produit {
     final float prix;
     private int points;
     private int quantite;
-    final String[] images;
-    final String[] videos;
+    final ArrayList<String> images;
+    final ArrayList<String> videos;
     final Categorie categorie;
     final ArrayList<String> likes;
     final ArrayList<Evaluation> evaluations;
@@ -30,8 +31,8 @@ public class Produit {
         this.prix = prix;
         this.quantite = quantite;
         this.points = points;
-        this.images = images.clone();
-        this.videos = videos.clone();
+        this.images = new ArrayList<>(Arrays.asList(images));
+        this.videos = new ArrayList<>(Arrays.asList(videos));
         this.categorie = categorie;
         this.likes = new ArrayList<>(likes);
         this.evaluations = new ArrayList<>(evaluations);
@@ -157,6 +158,14 @@ public class Produit {
     }
     public void restocker(int quantite) {
         this.quantite += quantite;
+        save();
+    }
+    public void ajouterVideos(String[] vids) {
+        this.videos.addAll(Arrays.asList(vids));
+        save();
+    }
+    public void ajouterImages(String[] imgs) {
+        this.videos.addAll(Arrays.asList(imgs));
         save();
     }
 }

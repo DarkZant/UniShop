@@ -1,7 +1,7 @@
 Liste des TODOs (Il manque surement des choses)  
   
 GÉNÉRAL  
-É- Toutes les fonctionnalités qu'un visiteur à accès (Requêtes publiques dans l'énoncé)  
+✅É- Toutes les fonctionnalités qu'un visiteur à accès (Requêtes publiques dans l'énoncé)  
 ✅É- Gérer connection 24h après création du compte  
 ✅É- Adresse courriel unique pour acheteur et revendeur  
 Mar- Modifier profil revendeur et acheteur  
@@ -9,11 +9,11 @@ Man- NOTIFICATIONS
 
 ACHETEUR  
 ✅É- Liker évaluation et gestion des points  
-É- Annuler commande + Date d'arrivé estimée  
-É- Créer commande pour retour / échange + check jours  
+✅É- Annuler commande + Date d'arrivé estimée  
+✅É- Créer commande pour retour / échange + check jours  
 Man- Système de followers pour acheteurs  
-Man- Trouver revendeur  
-É- Payer avec ses points  
+✅Man- Trouver revendeur  
+✅É- Payer avec ses points  
 Mar- Ajouter métriques acheteurs (Nb articles achetés, likes sur évaluations)  
   
 REVENDEURS  
