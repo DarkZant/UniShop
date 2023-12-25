@@ -343,7 +343,8 @@ public class ControleurAcheteur {
                                 "traitée avec succès!");
 
                         //TODO NOTIF
-                        Notification notifRev =new Notification(8, acheteur.getUsername(), p.nomReven, p.titre, -1);
+                        Notification notifRev = new Notification(8, acheteur.getUsername(), p.nomReven,
+                                p.titre, echange.getId());
                         Revendeur rev = initialiserRevendeur(p.nomReven);
                         rev.addNotifications(notifRev);
 
@@ -431,7 +432,8 @@ public class ControleurAcheteur {
 
                     //TODO NOTIF
                     for (Produit element : c.getProduitsP()) {
-                        Notification notifRev = new Notification(6, acheteur.getUsername(), element.nomReven, element.titre, c.getId());
+                        Notification notifRev = new Notification(6, acheteur.getUsername(), element.nomReven,
+                                element.titre, c.getId());
                         Revendeur rev = initialiserRevendeur(element.nomReven);
                         rev.addNotifications(notifRev);
                     }

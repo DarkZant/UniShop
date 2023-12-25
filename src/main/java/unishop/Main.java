@@ -121,7 +121,7 @@ public class Main {
             List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
             List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
             while (acheteurs.contains(username) || revendeurs.contains(username)) {
-                System.out.print("Ce Username existe déja. Veuillez entrer un autre Username: ");
+                System.out.print("Ce Username existe déjà. Veuillez entrer un autre Username: ");
                 username = br.readLine();
             }
             System.out.print("Entrez votre mot de passe: ");
