@@ -86,6 +86,18 @@ public class ControleurRevendeur {
             if (c != null)
                 revendeur.ajouterCatVendu(c.getCat());
             System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
+
+            // TODO NOTIF
+            List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
+            for ( String a : acheteurs){
+                Acheteur acheteur = initialiserAcheteur(a);
+                for (String rList : acheteur.getRevendeursLikes() ){
+                    if (rList == revendeur.getUsername()){
+                        Notification notifRev = new Notification(1, a, revendeur.getUsername(), p.titre, 0);
+                        acheteur.addNotifications(notifRev);
+                }
+                }
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -192,6 +204,11 @@ public class ControleurRevendeur {
                         a.save();
                         revendeur.save();
                         System.out.println("\nVous avez ajouté une solution au billet!");
+                        //TODO NOTIF
+
+                        Notification notifRev = new Notification(5, a.getUsername(), revendeur.getUsername(), b.produitInitial, 0);
+                        a.addNotifications(notifRev);
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -264,6 +281,18 @@ public class ControleurRevendeur {
                         }
                         p.changerPromotion((int)Math.floor(p.prix) + pts);
                         System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts + " points!");
+
+                        // TODO NOTIF
+                        List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
+                        for ( String a : acheteurs){
+                            Acheteur acheteur = initialiserAcheteur(a);
+                            for (String rList : acheteur.getRevendeursLikes() ){
+                                if (rList == revendeur.getUsername()){
+                                    Notification notifRev = new Notification(2, a, revendeur.getUsername(), p.titre, 0);
+                                    acheteur.addNotifications(notifRev);
+                                }
+                            }
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

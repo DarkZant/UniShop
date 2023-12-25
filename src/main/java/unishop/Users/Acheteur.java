@@ -79,6 +79,9 @@ public class Acheteur extends User{
         }
         return false;
     }
+    public ArrayList<String> getRevendeursLikes() {
+        return new ArrayList<>(revendeursLikes);
+    }
     public ArrayList<String> getFollowers() {
         return new ArrayList<>(suiveurs);
     }

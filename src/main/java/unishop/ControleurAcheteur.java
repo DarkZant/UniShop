@@ -320,6 +320,12 @@ public class ControleurAcheteur {
                         //TODO créer nouvelle commande pour échange
                         System.out.println("\nVotre demande " + (b.estRetour ? "de retour" : "d'échange") + " a été " +
                                 "traitée avec succès!");
+
+                        //TODO NOTIF
+                        Notification notifRev =new Notification(8, acheteur.getUsername(), p.nomReven, p.titre, -1);
+                        Revendeur rev = initialiserRevendeur(p.nomReven);
+                        rev.addNotifications(notifRev);
+
                         System.out.println("Votre ID pour ce billet est: " + p.getId());
 
                     } catch (IOException e) {
@@ -379,6 +385,14 @@ public class ControleurAcheteur {
                     acheteur.ajouterCommande(c.copy());
                     acheteur.panier.vider();
                     System.out.println("\nVotre commande a été passée avec succès!");
+
+                    //TODO NOTIF
+                    for (Produit element : c.getProduitsP()) {
+                        Notification notifRev = new Notification(6, acheteur.getUsername(), element.nomReven, element.titre, c.getId());
+                        Revendeur rev = initialiserRevendeur(element.nomReven);
+                        rev.addNotifications(notifRev);
+                    }
+
                     System.out.println("Votre identifiant de commanque unique est: " + c.getId());
                 }
                 catch (IOException e) {
@@ -447,6 +461,12 @@ public class ControleurAcheteur {
             p.addEvaluation(e);
             acheteur.ajouterEvaluation(e);
             System.out.println("\nVotre évaluation a été écrite avec succès!");
+
+            //TODO NOTIF
+            Notification notif =new Notification(7, acheteur.getUsername(), p.nomReven, p.titre, -1);
+            Revendeur r = initialiserRevendeur(p.nomReven);
+            r.addNotifications(notif);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

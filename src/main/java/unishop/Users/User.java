@@ -68,4 +68,5 @@ public abstract class User {
     public void setAddress(String address) {
         this.address = address;
     }
+    public void addNotifications(Notification n) {notifications.push(n);}
 }
