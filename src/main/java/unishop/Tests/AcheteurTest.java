@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AcheteurTest {
 
-    final ArrayList<String> acheteursSuivis = new ArrayList<>();
+    private final ArrayList<String> acheteursSuivis = new ArrayList<>();
 
     private Acheteur javier;
 

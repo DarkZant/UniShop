@@ -114,7 +114,6 @@ public class Produit {
         save();
     }
 
-    // TEST
     public float getNoteMoyenne() {
         float n = 0;
         for (Evaluation e : evaluations) {
@@ -135,13 +134,14 @@ public class Produit {
     public ArrayList<Evaluation> getEvaluations() {
         return new ArrayList<>(evaluations);
     }
-    public boolean aDesEvaluations() {return this.evaluations.isEmpty();}
+    public boolean aDesEvaluations() {return !this.evaluations.isEmpty();}
     public ArrayList<String> voirLikes() {
         return new ArrayList<>(likes);
     }
     public String getLike(int i) {
         return likes.get(i);
     }
+
     public void commander() {
         --this.quantite;
         save();
@@ -155,6 +155,7 @@ public class Produit {
         this.points = pts;
         save();
     }
+
     public void restocker(int quantite) {
         this.quantite += quantite;
         save();
