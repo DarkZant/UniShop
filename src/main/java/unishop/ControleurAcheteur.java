@@ -537,12 +537,11 @@ public class ControleurAcheteur {
                 if (choix == 2) {
                     return;
                 } else {
-                    if (followDeja(r.getUsername())) {
+                    if (r.estDejaSuiviPar(acheteur.getUsername()))
                         System.out.println("Vous suivez déjà ce revendeur.");
-                        return;
-                    } else {
+                    else {
                         r.ajouterFollower(acheteur.getUsername());
-                        System.out.println("\nFelicitations !!! Vous suivez maintenant le revendeur.");
+                        System.out.println("\nFélicitations! Vous suivez maintenant le revendeur.");
                     }
                 }
 
@@ -555,16 +554,4 @@ public class ControleurAcheteur {
         }
     }
 
-    static Boolean followDeja(String username) {
-        List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
-        for (String r : revendeurs){;
-            if (username == r) {
-                return false;
-            }
-            else {
-                return true;
-            }
-        }
-        return null;
-    }
 }
