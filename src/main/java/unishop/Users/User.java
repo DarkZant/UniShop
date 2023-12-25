@@ -16,7 +16,6 @@ public abstract class User {
     protected final ArrayList<Billet> billets;
     protected final ArrayList<Commande> commandes;
     protected Stack<Notification> notifications;
-
     protected User(String username, String password, String email, long phone, String address,
                    ArrayList<Billet> billets, ArrayList<Commande> commandes, Stack<Notification> ns) {
         this.username = username;
@@ -37,6 +36,8 @@ public abstract class User {
         save();
     }
     public String voirNotifications() {
+        if (notifications.isEmpty())
+            return "Vous n'avez aucunes notifications!";
         StringJoiner sj = new StringJoiner("\n");
         for (int i = 0; i < notifications.size(); ++i)
             sj.add(notifications.pop().afficher());

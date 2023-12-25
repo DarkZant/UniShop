@@ -35,7 +35,7 @@ public class ControleurInvite {
                 Acheteur acheteur;
                 String aEntre = br.readLine();
                 ArrayList<String> aSelect = new ArrayList<>();
-                for (String a : fichiersDansDossier(USERS_PATH + ACHETEURS)) {
+                for (String a : fichiersDansDossier(ACHETEURS_PATH)) {
                     if (a.contains(aEntre))
                         aSelect.add(a);
                 }
@@ -56,8 +56,8 @@ public class ControleurInvite {
                     System.out.println("\nVoici les informations sur " + acheteur.getUsername() + ": " +
                             acheteur.afficherMetriques());
                     System.out.println("\nQue voulez-vous faire ensuite?");
-                    choix = selectionChoix(new String[] {"Voir les followers", "Voir les suivis", "Faire une autre recherche",
-                            "Retourner au menu principal"});
+                    choix = selectionChoix(new String[] {"Voir les followers", "Voir les suivis",
+                            "Faire une autre recherche", "Retourner au menu principal"});
                     if (choix == 3)
                         break;
                     else if (choix == 4)
@@ -220,7 +220,7 @@ public class ControleurInvite {
             while (true) {
                 System.out.println("\nQuel type de recherche voulez-vous faire?");
                 ArrayList<String> revendeurSelect = new ArrayList<>();
-                List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+                List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
                 String demandeUtilisateur = "";
                 boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
                         "Recherche par filtre"});
@@ -250,7 +250,7 @@ public class ControleurInvite {
                 }
 
                 for (String r : revendeurs) {
-                    String[] contenu = lireFichierEnEntier(USERS_PATH + REVENDEURS + r + "/Infos.csv");
+                    String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/Infos.csv");
                     String adresse = contenu[0].split(",")[5];
                     List<String> categories = Arrays.asList(contenu[2].split(","));
 

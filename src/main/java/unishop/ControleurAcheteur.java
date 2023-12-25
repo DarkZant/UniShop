@@ -280,7 +280,7 @@ public class ControleurAcheteur {
         System.out.println("\nCommande #" + cmd.getId());
         System.out.println(cmd.afficher());
         System.out.println("Votre commande est " + cmd.getEtat() + ".");
-        String cmdpath = USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes/";
+        String cmdpath = ACHETEURS_PATH + acheteur.getUsername() + "/Commandes/";
         while (true) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Confirmer la livraison", "Retourner un produit", "Évaluer un produit",
@@ -335,10 +335,10 @@ public class ControleurAcheteur {
                         System.out.println("La différence de prix est de " + differencePrix + "$.");
                         Commande echange = new Commande((short)0, differencePrix, 0);
                         echange.addProduit(pro);
-                        echange.passerCommande(USERS_PATH + ACHETEURS + acheteur.getUsername() + "/Commandes",
+                        echange.passerCommande(ACHETEURS_PATH + acheteur.getUsername() + "/Commandes",
                                 acheteur.getAddress());
                         acheteur.ajouterCommande(echange);
-                        //TODO AJOUTER COMMANDE AU REVENDEUR
+                        r.ajouterCommande(echange);
                         System.out.println("\nVotre demande " + (b.estRetour ? "de retour" : "d'échange") + " a été " +
                                 "traitée avec succès!");
 
@@ -424,11 +424,17 @@ public class ControleurAcheteur {
                     demanderIntPositif("une date d'expiration");
                     System.out.print("Entrez le CVV: ");
                     demanderIntPositif("un CVV");
-                    Commande c = acheteur.panier.passerCommande(USERS_PATH + ACHETEURS +
+                    Commande c = acheteur.panier.passerCommande(ACHETEURS_PATH +
                             acheteur.getUsername() + "/Commandes", adresse);
                     acheteur.ajouterCommande(c.copy());
                     acheteur.panier.vider();
                     System.out.println("\nVotre commande a été passée avec succès!");
+                    ArrayList<String> revens = new ArrayList<>();
+                    for (Produit p : c.getProduitsP()) {
+                        if (revens.contains(p.nomReven))
+                            continue;
+
+                    }
 
                     //TODO NOTIF
                     for (Produit element : c.getProduitsP()) {
@@ -524,7 +530,7 @@ public class ControleurAcheteur {
         System.out.println("\nQuel type de recherche voulez-vous faire?");
         try {
             ArrayList<String> revendeurSelect = new ArrayList<>();
-            List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+            List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
             String demandeUtilisateur = "";
             boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
                     "Recherche par filtre"});
@@ -554,7 +560,7 @@ public class ControleurAcheteur {
             }
 
             for (String r : revendeurs) {
-                String[] contenu = lireFichierEnEntier(USERS_PATH + REVENDEURS + r + "/Infos.csv");
+                String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/Infos.csv");
                 String adresse = contenu[0].split(",")[5];
                 List<String> categories = Arrays.asList(contenu[2].split(","));
 

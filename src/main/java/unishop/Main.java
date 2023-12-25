@@ -20,8 +20,8 @@ public class Main {
     public final static String DATABASE_PATH = "Database/";
     public final static String PRODUITS_PATH = DATABASE_PATH + "Produits/";
     public final static String USERS_PATH = DATABASE_PATH + "Users/";
-    public final static String ACHETEURS = "Acheteurs/";
-    public final static String REVENDEURS = "Revendeurs/";
+    public final static String ACHETEURS_PATH = USERS_PATH + "Acheteurs/";
+    public final static String REVENDEURS_PATH = USERS_PATH + "Revendeurs/";
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
     public final static String EMAILS = DATABASE_PATH + "emails.csv";
@@ -118,8 +118,8 @@ public class Main {
         System.out.print("Entrez votre username: ");
         try {
             String username = br.readLine();
-            List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
-            List<String> revendeurs = fichiersDansDossier(USERS_PATH + REVENDEURS);
+            List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
+            List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
             while (acheteurs.contains(username) || revendeurs.contains(username)) {
                 System.out.print("Ce Username existe déjà. Veuillez entrer un autre Username: ");
                 username = br.readLine();
@@ -140,7 +140,7 @@ public class Main {
             System.out.print("Entrez votre adresse: ");
             String adresse = br.readLine();
             if (choix == 1) {
-                String basePath =  USERS_PATH + ACHETEURS + username;
+                String basePath =  ACHETEURS_PATH + username;
                 System.out.print("Entrez votre nom: ");
                 String nom = br.readLine();
                 System.out.print("Entrez votre prénom: ");
@@ -157,7 +157,7 @@ public class Main {
                     System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
 
             } else {
-                String basePath = USERS_PATH + REVENDEURS + username;
+                String basePath = REVENDEURS_PATH + username;
                 if (new File(basePath).mkdir() && new File(basePath + "/Commandes").mkdir()) {
                     String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0,0,0, ",
                             "" + obtenirTempsEnSecondes() };
@@ -181,13 +181,13 @@ public class Main {
                 username = br.readLine();
                 if (username.isEmpty())
                     return null;
-                File dossier = new File (USERS_PATH + ACHETEURS + username);
+                File dossier = new File (ACHETEURS_PATH + username);
                 if (dossier.exists()) {
-                    categorie = ACHETEURS;
+                    categorie = "Acheteurs/";
                 }
-                dossier = new File (USERS_PATH + REVENDEURS + username);
+                dossier = new File (REVENDEURS_PATH + username);
                 if (dossier.exists()) {
-                    categorie = REVENDEURS;
+                    categorie = "Revendeurs/";
                 }
                 if (categorie.isEmpty()) {
                     System.out.println("Username inconnu. Veuillez réessayer");
@@ -215,7 +215,7 @@ public class Main {
                 else
                     System.out.println("Votre compte est maintenant activé!");
             }
-            if (categorie.equals(ACHETEURS)){
+            if (categorie.equals("Acheteurs/")){
                 return initialiserAcheteur(username);
             }
             else {
@@ -228,7 +228,7 @@ public class Main {
         return null;
     }
     static Acheteur initialiserAcheteur(String username) throws IOException {
-        String path = USERS_PATH + ACHETEURS + username + "/";
+        String path = ACHETEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ "Infos.csv");
         String[] infos = data[0].split(",");
         ArrayList<String> as =  iniArrayList(data[1]);
@@ -284,7 +284,7 @@ public class Main {
                 panier, cmds, es, notifs);
     }
     static Revendeur initialiserRevendeur(String username) throws IOException {
-        String path = USERS_PATH + REVENDEURS + username + "/";
+        String path = REVENDEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ "Infos.csv");
         String[] infos = data[0].split(",");
         ArrayList<String> followers = iniArrayList(data[1]);

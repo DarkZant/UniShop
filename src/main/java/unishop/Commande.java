@@ -109,8 +109,17 @@ public class Commande {
         Main.ecrireFichierEntier(path + "/" + id + Main.CSV, sj.toString());
         return this;
     }
+    public String formatSaveRevendeur() {
+        StringJoiner sj = new StringJoiner("\n");
+        String[] base = new String[] {String.valueOf(id), date, String.valueOf(etat), String.valueOf(coutTotal),
+                String.valueOf(pointsTotal), adresse};
+        sj.add(String.join(",", base));
+        for(Produit p : this.produits)
+            sj.add(p.titre + "," + p.getId());
+        return sj.toString();
+    }
     public void save(){
-        String path = Main.USERS_PATH + Main.ACHETEURS + Main.getConnectedUsername() + "/Panier.csv";
+        String path = Main.ACHETEURS_PATH + Main.getConnectedUsername() + "/Panier.csv";
         StringJoiner sj = new StringJoiner("\n");
         sj.add(coutTotal + "," + pointsTotal);
         for(Produit p : produits)

@@ -88,7 +88,7 @@ public class ControleurRevendeur {
             System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
 
             // TODO NOTIF
-            List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
+            List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
             for ( String a : acheteurs){
                 Acheteur acheteur = initialiserAcheteur(a);
                 for (String rList : acheteur.getRevendeursLikes() ){
@@ -304,7 +304,7 @@ public class ControleurRevendeur {
                         }
 
                         // TODO NOTIF
-                        List<String> acheteurs = fichiersDansDossier(USERS_PATH + ACHETEURS);
+                        List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
                         for ( String a : acheteurs){
                             Acheteur acheteur = initialiserAcheteur(a);
                             for (String rList : acheteur.getRevendeursLikes() ){

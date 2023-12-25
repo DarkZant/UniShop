@@ -47,7 +47,7 @@ public class Revendeur extends User{
         for (Billet b : this.billets)
             sj.add(b.saveFormat());
 
-        Main.ecrireFichierEntier(Main.USERS_PATH + Main.REVENDEURS + this.username + "/Infos.csv", sj.toString());
+        Main.ecrireFichierEntier(Main.REVENDEURS_PATH + this.username + "/Infos.csv", sj.toString());
     }
     public Produit getProduitAvecChoix() {
         Produit[] ps = produits.toArray(new Produit[0]);
@@ -63,6 +63,8 @@ public class Revendeur extends User{
     @Override
     public void ajouterCommande(Commande c) {
         commandes.add(c);
+        Main.ecrireFichierEntier(Main.REVENDEURS_PATH + username + "/Commandes/" + c.getId() +
+                Main.CSV, c.formatSaveRevendeur());
         save();
     }
     @Override
@@ -76,7 +78,7 @@ public class Revendeur extends User{
         StringJoiner sj = new StringJoiner("\n");
         for (Notification n : notifications)
             sj.add(n.saveFormat());
-        Main.ecrireFichierEntier(Main.USERS_PATH + Main.REVENDEURS + username + "/Notifications.csv",
+        Main.ecrireFichierEntier(Main.REVENDEURS_PATH + username + "/Notifications.csv",
                 sj.toString());
     }
     public void ajouterFollower(String acheteur) {

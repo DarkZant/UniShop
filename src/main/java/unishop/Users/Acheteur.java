@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.StringJoiner;
 
-public class Acheteur extends User{
+public class Acheteur extends User implements Comparable<Acheteur>{
 
     final String nom;
     final String prenom;
@@ -56,7 +56,7 @@ public class Acheteur extends User{
             sj.add("");
         for (Billet b : billets)
             sj.add(b.saveFormat());
-        Main.ecrireFichierEntier(Main.USERS_PATH + Main.ACHETEURS + this.username + "/Infos.csv", sj.toString());
+        Main.ecrireFichierEntier(Main.ACHETEURS_PATH + this.username + "/Infos.csv", sj.toString());
     }
 
     // TEST
@@ -106,7 +106,7 @@ public class Acheteur extends User{
         String[] evals = new String[evaluations.size()];
         for (int i = 0; i < evals.length; ++i)
             evals[i] = evaluations.get(i).getSaveFormatAcheteur();
-        Main.ecrireFichierEntier(Main.USERS_PATH + Main.ACHETEURS + username + "/Evaluations.csv",
+        Main.ecrireFichierEntier(Main.ACHETEURS_PATH + username + "/Evaluations.csv",
                 String.join("\n", evals));
         save();
     }
@@ -125,7 +125,7 @@ public class Acheteur extends User{
         StringJoiner sj = new StringJoiner("\n");
         for (Notification n : notifications)
             sj.add(n.saveFormat());
-        Main.ecrireFichierEntier(Main.USERS_PATH + Main.ACHETEURS + username + "/Notifications.csv",
+        Main.ecrireFichierEntier(Main.ACHETEURS_PATH + username + "/Notifications.csv",
                 sj.toString());
     }
 
@@ -134,5 +134,13 @@ public class Acheteur extends User{
     public String afficherMetriques() {
         return "\nNombre de points: " + points + "\nNombre total de commandes effectuées: " + commandes.size() +
                 "\nNombre de followers: " + suiveurs.size();
+    }
+    @Override
+    public int compareTo(Acheteur a){
+        if (this.points > a.points)
+            return 1;
+        else if (this.points < a.points)
+            return -1;
+        return 0;
     }
 }
