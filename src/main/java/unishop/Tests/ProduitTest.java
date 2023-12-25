@@ -3,7 +3,6 @@ package unishop.Tests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import unishop.Categories.CPapeterie;
-import unishop.Categories.Categorie;
 import unishop.Evaluation;
 import unishop.Produit;
 
@@ -24,7 +23,7 @@ class ProduitTest {
 
         cahierUltime = new Produit("Juan", "CahierUltime", "blablabla", 8.5f, 10,
                 20, new String[3], new String[3], new CPapeterie("Nike", "Ultime", "Cahier"),
-                likes, new ArrayList<Evaluation>());
+                likes, new ArrayList<>());
     }
 
     @Test

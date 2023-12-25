@@ -2,11 +2,9 @@ package unishop.Tests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import unishop.Billet;
 import unishop.Commande;
 import unishop.Users.Acheteur;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -26,7 +24,7 @@ class AcheteurTest {
 
         // Nouveau acheteur
         javier = new Acheteur("Javier", "123","123",1232323332,"123","Medina","Javier"
-                ,100,50,acheteursSuivis,new ArrayList<String>(),new ArrayList<Billet>(),
+                ,100,50,acheteursSuivis,new ArrayList<>(),new ArrayList<>(),
                 new Commande((short) 1,1.5f,1),new ArrayList<>(),new ArrayList<>(), new Stack<>());
     }
 
