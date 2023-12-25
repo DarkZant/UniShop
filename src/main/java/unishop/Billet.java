@@ -66,6 +66,7 @@ public class Billet {
         }
         return sj.toString();
     }
+
     public String afficherMenu(){
         return "ID: " + id + "; Acheteur: " + nomAche + "; Produit problématique: " + produitInitial +
                 (estRetour ? "; Retour" : "; Échange");
@@ -74,6 +75,8 @@ public class Billet {
     public void setProbRev(String probRev) {
         this.probRev = probRev;
     }
+
+    // TEST
     public boolean comfirmerLivraisonInitial() {
         if (this.iniLivre)
             return false;
@@ -83,6 +86,7 @@ public class Billet {
         }
     }
 
+    // TEST
     public boolean comfirmerLivraisonRempla() {
         if (this.remplaLivre)
             return false;

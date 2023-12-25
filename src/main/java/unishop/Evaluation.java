@@ -29,12 +29,18 @@ public class Evaluation {
         return "Acheteur: " + nomAcheteur + "\nNote sur 5: " + note + "\n" + commentaire +
                 "\nNombre de likes: " + likes + (estInapropprie ? "\nSignalée comme inappropriée" : "");
     }
+
+    // TEST
     public void ajouterLike() {
         ++likes;
     }
+
+    // TEST
     public boolean isEqual(Evaluation e) {
         return e.note == this.note && e.commentaire.equals(this.commentaire) && e.likes == this.likes;
     }
+
+    // TEST
     public boolean signaler() {
         if (this.estInapropprie)
             return false;
