@@ -162,5 +162,6 @@ public class Commande {
     public String getMenuDisplay() {
         return "ID: " + id + " ; Date: " + date + " ; Total: " + coutTotal + "$";
     }
+    public ArrayList<Produit> getProduitsP() { return new ArrayList<>(this.produits);}
 
 }
