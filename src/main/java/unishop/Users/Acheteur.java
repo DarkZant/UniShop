@@ -59,7 +59,7 @@ public class Acheteur extends User{
     }
 
     // TEST
-    public String suivre(String acheteur) {
+     public String suivre(String acheteur) {
         if (this.username.equals(acheteur))
             return "Vous ne pouvez pas vous suivre vous-même!";
         else if (acheteursSuivis.contains(acheteur))

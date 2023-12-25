@@ -25,7 +25,7 @@ public class Main {
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
     public final static String EMAILS = DATABASE_PATH + "emails.csv";
-    public final static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     private static User connectedUser = null;
     private static short choix;
@@ -324,7 +324,7 @@ public class Main {
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evalsL);
     }
-    static int demanderIntPositif(String demande) throws IOException {
+    public static int demanderIntPositif(String demande) throws IOException {
         int i;
         while (true) {
             try {
@@ -340,7 +340,7 @@ public class Main {
             }
         }
     }
-    static long demanderLong(String demande) throws IOException {
+    public static long demanderLong(String demande) throws IOException {
         long l;
         while (true) {
             try {
@@ -352,7 +352,7 @@ public class Main {
             }
         }
     }
-    static float demanderFloat(String demande) throws IOException {
+    public static float demanderFloat(String demande) throws IOException {
         float prix;
         while (true) {
             try {
@@ -390,7 +390,7 @@ public class Main {
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
     }
-    static ArrayList<String> iniArrayList(String s) {
+    public static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
             return new ArrayList<>(Arrays.asList(tab).subList(1, tab.length));
