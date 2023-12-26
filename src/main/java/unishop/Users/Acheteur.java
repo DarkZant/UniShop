@@ -8,8 +8,8 @@ import java.util.StringJoiner;
 
 public class Acheteur extends User implements Comparable<Acheteur>{
 
-    final String nom;
-    final String prenom;
+    private String nom;
+    private String prenom;
     private int points;
     private final int likes;
     final ArrayList<String> acheteursSuivis;
@@ -32,9 +32,9 @@ public class Acheteur extends User implements Comparable<Acheteur>{
         this.panier = panier;
     }
 
-    public int getPoints() {
-        return this.points;
-    }
+    public void setNom (String nom) { this.nom = nom; }
+
+    public void setPrenom (String prenom) { this.prenom = prenom; }
 
     @Override
     public boolean isAcheteur() {

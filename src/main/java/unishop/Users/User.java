@@ -113,6 +113,9 @@ public abstract class User {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    public void setPassword (String password) { this.password = password; }
+
     public void addNotifications(Notification n) {
         this.notifications.push(n);
         save();
