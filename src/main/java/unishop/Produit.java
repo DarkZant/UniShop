@@ -39,9 +39,6 @@ public class Produit {
         this.noteMoyenne = getNoteMoyenne();
     }
     public int getPoints() {return this.points;}
-    public ArrayList<String> getLikes() {
-        return new ArrayList<>(likes);
-    }
     public void save() {
         StringJoiner sj = new StringJoiner(",");
         sj.add(nomReven);
@@ -105,12 +102,12 @@ public class Produit {
     }
 
     // TEST
-    public boolean liker(String nomAcheteur) {
+    public String liker(String nomAcheteur) {
         if (likes.contains(nomAcheteur))
-            return false;
+            return "Vous avez déjà liké ce produit!";
         this.likes.add(nomAcheteur);
         save();
-        return true;
+        return "Vous avez liké " + titre + "!";
     }
     public void addEvaluation(Evaluation e) {
         this.evaluations.add(e);

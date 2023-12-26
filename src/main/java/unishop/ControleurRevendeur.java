@@ -5,6 +5,7 @@ import unishop.Users.Acheteur;
 import unishop.Users.Revendeur;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,71 +38,79 @@ public class ControleurRevendeur {
         System.out.println("\nVeuillez remplir les informations concernant votre produit.");
         System.out.println("Commencez par choisir une catégorie:");
         choix = selectionChoix(Categorie.categories);
-        System.out.print("Quel est le titre de votre produit? (Ne rien mettre pour retourner au menu): ");
-        String titre = demanderString();
-        if (titre.isEmpty())
-            return;
-        List<String> titres = fichiersDansDossier(PRODUITS_PATH);
-        while (titres.contains(titre + CSV)) {
-            System.out.print("Ce nom de produit existe déjà. Veuillez en entrer un autre: ");
-            titre = demanderString();
-        }
-        System.out.print("Veuillez entrer une description: ");
-        String description = demanderString();
-
-        System.out.print("Veuillez entrer des liens pour des images (Séparés pas des \",\"): ");
-        String[] images = demanderString().split(",");
-        System.out.print("Veuillez entrer des liens pour des vidéos (Séparés pas des \",\"): ");
-        String[] videos = demanderString().split(",");
-        Categorie c = null;
-        switch(choix) {
-            case 1 -> c = offrirLivre();
-            case 2 -> c = offrirRessource();
-            case 3 -> c = offrirPapeterie();
-            case 4 -> c = offrirInfo();
-            case 5 -> c = offrirBureau();
-        }
-        System.out.print("Veuillez entrer un prix: ");
-        float prix = demanderFloat("un prix");
-        System.out.println("Voulez vous offrir une promotion en points?");
-        int points = (int) Math.floor(prix);
-        int pointsMax = (int) Math.floor(prix * 19);
-        if(choixOuiNon()) {
-            System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
-            int pts = demanderIntPositif("un nombre de points");
-            while (pts > pointsMax) {
-                System.out.print("Vous avez entré un nombre de points trop grand! Veuillez réessayer: ");
-                pts = demanderIntPositif("un nombre de points");
+        try {
+            System.out.print("Quel est le titre de votre produit? (Ne rien mettre pour retourner au menu) ");
+            String titre = br.readLine();
+            if (titre.isEmpty())
+                return;
+            List<String> titres = fichiersDansDossier(PRODUITS_PATH);
+            while (titres.contains(titre + CSV)) {
+                System.out.print("Ce nom de produit existe déjà. Veuillez en entrer un autre: ");
+                titre = br.readLine();
             }
-            points += pts;
-        }
-        System.out.print("Veuillez entrer une quantité initiale à mettre dans l'inventaire: ");
-        int quantite = demanderIntPositif("une quantité");
-        Produit p = new Produit(revendeur.getUsername(), titre, description, prix, quantite, points, images, videos,
-                c, new ArrayList<>(), new ArrayList<>());
-        p.save();
-        revendeur.ajouterProduit(p);
-        if (c != null)
-            revendeur.ajouterCatVendu(c.getCat());
-        System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
+            System.out.print("Veuillez entrer une description: ");
+            String description = br.readLine();
 
-        // TODO NOTIF
-        for (String a : revendeur.getFollowers()){
-            Acheteur acheteur = initialiserAcheteur(a);
-            acheteur.addNotifications(new Notification(1, a, revendeur.getUsername(), p.titre, 0));
+            System.out.print("Veuillez entrer des liens pour des images (Séparés pas des \",\"): ");
+            String[] images = br.readLine().split(",");
+            System.out.print("Veuillez entrer des liens pour des vidéos (Séparés pas des \",\"): ");
+            String[] videos = br.readLine().split(",");
+            Categorie c = null;
+            switch(choix) {
+                case 1 -> c = offrirLivre();
+                case 2 -> c = offrirRessource();
+                case 3 -> c = offrirPapeterie();
+                case 4 -> c = offrirInfo();
+                case 5 -> c = offrirBureau();
+            }
+            System.out.print("Veuillez entrer un prix: ");
+            float prix = demanderFloat("un prix");
+            System.out.println("Voulez vous offrir une promotion en points?");
+            int points = (int) Math.floor(prix);
+            int pointsMax = (int) Math.floor(prix * 19);
+            if(choixOuiNon()) {
+                System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
+                int pts = demanderIntPositif("un nombre de points");
+                while (pts > pointsMax) {
+                    System.out.print("Vous avez entré un nombre de points trop grand! Veuillez réessayer: ");
+                    pts = demanderIntPositif("un nombre de points");
+                }
+                points += pts;
+            }
+            System.out.print("Veuillez entrer une quantité initiale à mettre dans l'inventaire: ");
+            int quantite = demanderIntPositif("une quantité");
+            Produit p = new Produit(revendeur.getUsername(), titre, description, prix, quantite, points, images, videos,
+                    c, new ArrayList<>(), new ArrayList<>());
+            p.save();
+            revendeur.ajouterProduit(p);
+            if (c != null)
+                revendeur.ajouterCatVendu(c.getCat());
+            System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
+
+            // TODO NOTIF
+            for (String a : revendeur.getFollowers()){
+                Acheteur acheteur = initialiserAcheteur(a);
+                Notification notifRev = new Notification(1, a, revendeur.getUsername(), p.titre, 0);
+                acheteur.addNotifications(notifRev);
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
+            offrirProduit();
         }
     }
-    static Categorie offrirLivre() {
+    static Categorie offrirLivre() throws IOException {
         System.out.println("Veuillez choisir le genre de votre livre:");
         String genre = CLivres.genres[selectionChoix(CLivres.genres) - 1];
         System.out.print("Entrez le ISBN: ");
         long isbn = demanderLong("un ISBN");
         System.out.print("Entrez l'auteur: ");
-        String auteur = demanderString();
+        String auteur = br.readLine();
         System.out.print("Entrez la maison d'édition: ");
-        String maison = demanderString();
+        String maison = br.readLine();
         System.out.print("Entrez la date de parution (JJ/MM/AAAA): ");
-        String date = demanderString();
+        String date = br.readLine();
         System.out.print("Entrez le numéro d'édition: ");
         int numEdition = demanderIntPositif("un numéro d'édition");
         System.out.print("Entrez le numéro de volume: ");
@@ -109,48 +118,48 @@ public class ControleurRevendeur {
         return new CLivres(auteur, maison, genre, isbn, date, numEdition, numVolume);
 
     }
-    static Categorie offrirRessource() {
+    static Categorie offrirRessource() throws IOException{
         System.out.println("Est-ce un produit en ligne ou imprimé?");
         String type = CRessources.types[selectionChoix(CRessources.types) - 1];
         System.out.print("Entrez le ISBN: ");
         long isbn = demanderLong("un ISBN");
         System.out.print("Entrez l'auteur: ");
-        String auteur = demanderString();
+        String auteur = br.readLine();
         System.out.print("Entrez l'organisation: ");
-        String organisation = demanderString();
+        String organisation = br.readLine();
         System.out.print("Entrez la date de parution (JJ/MM/AAAA): ");
-        String date = demanderString();
+        String date = br.readLine();
         System.out.print("Entrez le numéro d'édition: ");
         int numEdition = demanderIntPositif("un numéro d'édition");
         return new CRessources(auteur, organisation, type, isbn, date, numEdition);
     }
-    static Categorie offrirPapeterie() {
+    static Categorie offrirPapeterie() throws IOException {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CPapeterie.sousCats[selectionChoix(CPapeterie.sousCats) - 1];
         System.out.print("Entrez la marque: ");
-        String marque = demanderString();
+        String marque = br.readLine();
         System.out.print("Entrez le modèle: ");
-        String modele = demanderString();
+        String modele = br.readLine();
         return new CPapeterie(marque, modele, sousCat);
     }
-    static Categorie offrirInfo() {
+    static Categorie offrirInfo() throws IOException {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CInformatique.sousCats[selectionChoix(CInformatique.sousCats) - 1];
         System.out.print("Entrez la marque: ");
-        String marque = demanderString();
+        String marque = br.readLine();
         System.out.print("Entrez le modèle: ");
-        String modele = demanderString();
+        String modele = br.readLine();
         System.out.print("Entrez la date de parution (JJ/MM/AAAA): ");
-        String date = demanderString();
+        String date = br.readLine();
         return new CInformatique(marque, modele, sousCat, date);
     }
-    static Categorie offrirBureau() {
+    static Categorie offrirBureau() throws IOException {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CBureau.sousCats[selectionChoix(CBureau.sousCats) - 1];
         System.out.print("Entrez la marque: ");
-        String marque = demanderString();
+        String marque = br.readLine();
         System.out.print("Entrez le modèle: ");
-        String modele = demanderString();
+        String modele = br.readLine();
         return new CBureau(marque, modele, sousCat);
     }
     static void gererCommandes() {
@@ -172,11 +181,14 @@ public class ControleurRevendeur {
         System.out.println("\nCommande #" + cmd.getId());
         System.out.println(cmd.afficher());
         System.out.println("Votre commande est " + cmd.getEtat() + ".");
-        if (cmd.estEnProduction()) {
-            System.out.println("\nChoisissez une action: ");
-            choix = selectionChoix(new String[]{"Changer l'état de la commande",  "Retourner au menu"});
-            if (choix == 1)
-                cmd.mettreEnLivraison();
+        System.out.println("\nChoisissez une action: ");
+        choix = selectionChoix(new String[]{"Changer l'état de la commande",  "Retourner au menu"});
+        if (choix == 1) {
+            switch (cmd.confirmerLivraison()) {
+                case 0 -> System.out.println("\nL'état de votre commande a été changé avec succès!");
+                case 1 -> System.out.println("\nVotre commande est déjà en livraison!");
+                case 2 -> System.out.println("\nLa commande a déjà été livrée à l'acheteur!");
+            }
         }
     }
     static void gererBillets() {
@@ -197,24 +209,29 @@ public class ControleurRevendeur {
                 return;
             Billet b = ba.get(choix - 1);
             System.out.println("\n" + b.afficher());
-            if (b.isIniLivre() && b.aSolution())
+            if (!b.comfirmerLivraisonInitial() && !b.pasDeSolution())
                 continue;
             System.out.println("\nQue voulez-vous faire?");
             choix = selectionChoix(new String[] {"Donner une solution", "Confirmer l'arrivée du produit problématique",
                     "Retourner au menu"});
             if (choix == 1) {
-                if (!b.aSolution()) {
+                if (b.pasDeSolution()) {
                     System.out.print("Entrez votre solution: ");
-                    String solution = demanderString();
-                    b.setProbRev(solution);
-                    //TODO NOTIF
-                    Acheteur a = initialiserAcheteur(b.nomAche);
-                    a.addNotifications(new Notification(5, a.getUsername(), revendeur.getUsername(),
-                            b.produitInitial, 0));
-                    System.out.println("\nVous avez ajouté une solution au billet!");
+                    try {
+                        String solution = br.readLine();
+                        b.setProbRev(solution);
+                        Acheteur a = initialiserAcheteur(b.nomAche);
+                        //TODO NOTIF
+                        a.addNotifications(new Notification(5, a.getUsername(), revendeur.getUsername(),
+                                b.produitInitial, 0));
+                        System.out.println("\nVous avez ajouté une solution au billet!");
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else {
-                    System.out.println("\nVous avez déjà ajouté une solution à ce billet!");
+                    System.out.println("\nVous aviez déjà ajouté une solution à ce billet!");
                 }
             }
             else if (choix == 2) {
@@ -222,7 +239,7 @@ public class ControleurRevendeur {
                     System.out.println("\nVous avez confirmer la livraison du produit problématique à l'entrepôt!");
                 }
                 else
-                    System.out.println("\nVous avez déjà confirmé la réception du produit problématique pour ce " +
+                    System.out.println("\nVous aviez déjà confirmé la réception du produit problématique pour ce " +
                             "billet!");
             }
             else
@@ -231,10 +248,6 @@ public class ControleurRevendeur {
 
     }
     static void modifierProduit () {
-        if (revendeur.nbProduitsOfferts() == 0) {
-            System.out.println("\nVous n'avez aucun produit en vente!");
-            return;
-        }
         while (true) {
             System.out.println("\nChoisir une option: ");
             choix = selectionChoix(new String[] {"Restocker un produit", "Gérer une promotion", "Ajouter des médias",
@@ -247,9 +260,13 @@ public class ControleurRevendeur {
             switch (choix) {
                 case 1 -> {
                     System.out.print("Entrez la quantité que vous voulez ajouter à l'inventaire: ");
-                    p.restocker(demanderIntPositif("une quantité"));
-                    System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre +
-                            " en inventaire!");
+                    try {
+                        p.restocker(demanderIntPositif("une quantité"));
+                        System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre +
+                                " en inventaire!");
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 case 2 -> {
                     while (true) {
@@ -270,79 +287,77 @@ public class ControleurRevendeur {
                         else {
                             int pointsMax = (int) Math.floor(p.prix * 19);
                             System.out.print("Entrez un nombre de points (Plus petit ou égal à " + pointsMax + "): ");
-                            int pts = demanderIntPositif("un nombre de points");
-                            while (pts > pointsMax || pts == 0) {
-                                System.out.print("Vous avez entré un nombre de points invalide! " +
-                                        "Veuillez réessayer: ");
-                                pts = demanderIntPositif("un nombre de points");
-                            }
-                            p.changerPromotion((int)Math.floor(p.prix) + pts);
-                            // TODO NOTIF
-                            for (String a : revendeur.getFollowers()) {
-                                Acheteur acheteur = initialiserAcheteur(a);
-                                acheteur.addNotifications(new Notification(2, a, revendeur.getUsername(),
-                                        "", 0));
-                            }
-                            for(String a : p.getLikes()) {
-                                Acheteur acheteur = initialiserAcheteur(a);
-                                acheteur.addNotifications(new Notification(2, a, "", p.titre,
-                                        -1));
-                                for (String follower : acheteur.getFollowers()) {
-                                    Acheteur f = initialiserAcheteur(follower);
-                                    f.addNotifications(new Notification(4, a, "", p.titre,
-                                            -1));
+                            try {
+                                int pts = demanderIntPositif("un nombre de points");
+                                while (pts > pointsMax || pts == 0) {
+                                    System.out.print("Vous avez entré un nombre de points invalide! " +
+                                            "Veuillez réessayer: ");
+                                    pts = demanderIntPositif("un nombre de points");
                                 }
+                                p.changerPromotion((int)Math.floor(p.prix) + pts);
+                                // TODO NOTIF
+                                for (String a : revendeur.getFollowers()) {
+                                    Acheteur acheteur = initialiserAcheteur(a);
+                                    Notification notifRev = new Notification(2, a, revendeur.getUsername(),
+                                            p.titre, 0);
+                                    acheteur.addNotifications(notifRev);
+                                }
+                                System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts +
+                                        " points!");
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                            System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts +
-                                    " points!");
                         }
                     }
                 }
                 case 3 -> {
+                    try {
                         System.out.println("Voulez-vous ajouter des images ou des vidéos?");
                         if (1 == selectionChoix(new String[] {"Images", "Vidéos"})) {
                             System.out.print("Entrer les liens vers les images séparés par des virgules: ");
-                            String[] imgs = demanderString().split(",");
+                            String[] imgs = br.readLine().split(",");
                             p.ajouterImages(imgs);
                         }
                         else {
                             System.out.print("Entrer les liens vers les vidéos séparés par des virgules: ");
-                            String[] vids = demanderString().split(",");
+                            String[] vids = br.readLine().split(",");
                             p.ajouterVideos(vids);
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
     }
     static void changerInformations() {
-        System.out.println("\nChoississez ce que vous voulez modifier: ");
-        choix = selectionChoix(new String[]{"Mot de passe", "Adresse courriel", "Téléphone", "Adresse",
-                "Retourner au menu"});
-        switch (choix) {
-            case 1 -> {
-                System.out.print("Entrez un nouveau mot de passe: ");
-                String password = demanderString();
-                revendeur.setPassword(password);
-                System.out.println("\nVous avez changé votre mot de passe!");
-            }
-            case 2 -> {
-                System.out.print("Entrez une nouvelle adresse de courriel: ");
-                String email = demanderString();
-                revendeur.setEmail(email);
-                System.out.println("\nVous avez changé votre adresse courriel!");
-            }
-            case 3 -> {
-                System.out.print("Entrez un nouveau numéro de téléphone: ");
-                long telephone = demanderLong("un numéro");
-                revendeur.setPhone(telephone);
-                System.out.println("\nVous avez changé votre numéro de téléphone!");
-            }
-            case 4 -> {
-                System.out.print("Entrez une nouvelle adresse: ");
-                String adresse = demanderString();
-                revendeur.setAddress(adresse);
-                System.out.println("\nVous avez changé votre adresse!");
-            }
+        try {
+            choix = selectionChoix(new String[]{"Modifier Téléphone", "Modifier Adresse", "Modifier Mot de passe",
+                                                "Modifier Adresse courriel"});
+            switch (choix) {
+                case 1 -> {
+                    System.out.println("Rentrer votre nouveau numéro de téléphone: ");
+                    long telephone = demanderLong("un numéro");
+                    revendeur.setPhone(telephone);
+                }
+                case 2 -> {
+                    System.out.println("Rentrer votre nouvelle adresse: ");
+                    String adresse = br.readLine();
+                    revendeur.setPassword(adresse);
+                }
+                case 3 -> {
+                    System.out.println("Rentrer votre nouveau mot de passe: ");
+                    String password = br.readLine();
+                    revendeur.setPassword(password);
+                }
+                case 4 -> {
+                    System.out.println("Rentrer votre nouvelle adresse de courriel: ");
+                    String email = br.readLine();
+                    revendeur.setEmail(email);
+                }
+        }
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 }
