@@ -510,7 +510,44 @@ public class ControleurAcheteur {
         }
     }
     static void changerInformations() {
-        System.out.println("\nTODO");
+        try {
+            choix = selectionChoix(new String[]{"Modifier Prénom", "Modifier Nom", "Modifier Téléphone",
+                    "Modifier Adresse", "Modifier Mot de passe", "Modifier Adresse courriel"});
+            switch (choix) {
+                case 1 -> {
+                    System.out.println("Rentrer votre nouveau prénom: ");
+                    String prenom = br.readLine();
+                    acheteur.setPrenom(prenom);
+                }
+                case 2 -> {
+                    System.out.println("Rentrer votre nouveau nom: ");
+                    String nom = br.readLine();
+                    acheteur.setNom(nom);
+                }
+                case 3 -> {
+                    System.out.println("Rentrer votre nouveau numéro de téléphone: ");
+                    long telephone = demanderLong("un numéro");
+                    acheteur.setPhone(telephone);
+                }
+                case 4 -> {
+                    System.out.println("Rentrer votre nouvelle adresse: ");
+                    String adresse = br.readLine();
+                    acheteur.setPassword(adresse);
+                }
+                case 5 -> {
+                    System.out.println("Rentrer votre nouveau mot de passe: ");
+                    String password = br.readLine();
+                    acheteur.setPassword(password);
+                }
+                case 6 -> {
+                    System.out.println("Rentrer votre nouvelle adresse de courriel: ");
+                    String email = br.readLine();
+                    acheteur.setEmail(email);
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
     static void gererAcheteursSuivis() { System.out.println("\nTODO"); }
     static void rechercherRevendeur() {
@@ -603,5 +640,4 @@ public class ControleurAcheteur {
             }
         }
     }
-
 }

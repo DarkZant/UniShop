@@ -331,6 +331,33 @@ public class ControleurRevendeur {
         }
     }
     static void changerInformations() {
-        System.out.println("\nTODO");
+        try {
+            choix = selectionChoix(new String[]{"Modifier Téléphone", "Modifier Adresse", "Modifier Mot de passe",
+                                                "Modifier Adresse courriel"});
+            switch (choix) {
+                case 1 -> {
+                    System.out.println("Rentrer votre nouveau numéro de téléphone: ");
+                    long telephone = demanderLong("un numéro");
+                    revendeur.setPhone(telephone);
+                }
+                case 2 -> {
+                    System.out.println("Rentrer votre nouvelle adresse: ");
+                    String adresse = br.readLine();
+                    revendeur.setPassword(adresse);
+                }
+                case 3 -> {
+                    System.out.println("Rentrer votre nouveau mot de passe: ");
+                    String password = br.readLine();
+                    revendeur.setPassword(password);
+                }
+                case 4 -> {
+                    System.out.println("Rentrer votre nouvelle adresse de courriel: ");
+                    String email = br.readLine();
+                    revendeur.setEmail(email);
+                }
+        }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
