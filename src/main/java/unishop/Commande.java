@@ -1,6 +1,5 @@
 package unishop;
 
-import java.io.IOException;
 import java.util.*;
 
 public class Commande {
@@ -9,6 +8,7 @@ public class Commande {
     private short etat;
     private float coutTotal;
     private int pointsTotal;
+    private String acheteur;
     private String date;
     private long reception;
     private int id;
@@ -23,7 +23,7 @@ public class Commande {
     }
     public Commande copy() {
         Commande c = new Commande(etat, coutTotal, pointsTotal);
-        c.addPastInfo(id, date, adresse, reception);
+        c.addPastInfo(id, date, adresse, acheteur, reception);
         c.produits = new ArrayList<>(this.produits);
         return c;
     }
@@ -39,6 +39,9 @@ public class Commande {
     public float getCoutTotal() {
         return coutTotal;
     }
+    public String getAcheteur() {
+        return this.acheteur;
+    }
 
     public String getEtat(){
         return etats[etat];
@@ -46,16 +49,9 @@ public class Commande {
     public boolean estEnProduction() {return etat == 0;}
     public boolean estEnLivraison() {return etat == 1;}
     public boolean estLivre() {return etat == 2;}
-    public short mettreEnLivraison() {
-        if (this.estEnProduction()) {
-            ++this.etat;
-            save();
-            return 0;
-        }
-        else if (estEnLivraison())
-            return 1;
-        else
-            return 2;
+    public void mettreEnLivraison() {
+        ++this.etat;
+        save();
     }
     public short confirmerLivraison() {
         if (this.estEnLivraison()) {
@@ -77,8 +73,9 @@ public class Commande {
         }
         return revs;
     }
-    public void addPastInfo(int id, String date, String adresse, long reception) {
+    public void addPastInfo(int id, String date, String adresse, String acheteur, long reception) {
         this.id = id;
+        this.acheteur = acheteur;
         this.date = date;
         this.adresse = adresse;
         this.reception = reception;
@@ -94,7 +91,7 @@ public class Commande {
     }
     public void addProduitEchange(Produit p) {
         this.produits.add(p);
-        savePanier();
+        save();
     }
     public void removeProduit(Produit p) {
         this.produits.remove(p);
@@ -109,7 +106,7 @@ public class Commande {
             sj.add(p.titre +  "; " + p.prix + "$; " + p.getPoints() + " points");
         return sj.toString();
     }
-    public Commande passerCommande(String adresse) throws IOException {
+    public Commande passerCommande(String nom, String adresse) {
         String[] ids = Main.lireFichierEnEntier(Main.IDS);
         String[] fs = ids[0].split(",");
         id = Integer.parseInt(fs[0]);
@@ -117,7 +114,7 @@ public class Commande {
         date = new java.util.Date().toString();
         StringJoiner sj = new StringJoiner("\n");
         String[] base = new String[] {String.valueOf(id), date, "0", String.valueOf(coutTotal),
-                String.valueOf(pointsTotal), adresse};
+                String.valueOf(pointsTotal), adresse, nom};
         sj.add(String.join(",", base));
         for(Produit p : this.produits) {
             sj.add(p.titre + "," + produitID);
@@ -126,18 +123,10 @@ public class Commande {
             ++produitID;
         }
         this.adresse = adresse;
+        this.acheteur = nom;
         Main.ecrireFichierEntier(Main.IDS, (id + 1) + "," + produitID);
         Main.ecrireFichierEntier(Main.COMMANDES_PATH + id + Main.CSV, sj.toString());
         return this;
-    }
-    public String formatSaveRevendeur() {
-        StringJoiner sj = new StringJoiner("\n");
-        String[] base = new String[] {String.valueOf(id), date, String.valueOf(etat), String.valueOf(coutTotal),
-                String.valueOf(pointsTotal), adresse};
-        sj.add(String.join(",", base));
-        for(Produit p : this.produits)
-            sj.add(p.titre + "," + p.getId());
-        return sj.toString();
     }
     public void savePanier(){
         String path = Main.ACHETEURS_PATH + Main.getConnectedUsername() + "/Panier.csv";
@@ -150,11 +139,10 @@ public class Commande {
     public void save() {
         StringJoiner sj = new StringJoiner("\n");
         String[] base = new String[] {String.valueOf(id), date, String.valueOf(etat), String.valueOf(coutTotal),
-                String.valueOf(pointsTotal), adresse, String.valueOf(reception)};
+                String.valueOf(pointsTotal), adresse, acheteur, String.valueOf(reception)};
         sj.add(String.join(",", base));
-        for(Produit p : this.produits) {
+        for(Produit p : this.produits)
             sj.add(p.titre + "," + p.getId());
-        }
         Main.ecrireFichierEntier(Main.COMMANDES_PATH + id + Main.CSV, sj.toString());
     }
     public void vider() {

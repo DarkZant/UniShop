@@ -32,9 +32,15 @@ public class Acheteur extends User implements Comparable<Acheteur>{
         this.panier = panier;
     }
 
-    public void setNom (String nom) { this.nom = nom; }
+    public void setNom (String nom) {
+        this.nom = nom;
+        save();
+    }
 
-    public void setPrenom (String prenom) { this.prenom = prenom; }
+    public void setPrenom (String prenom) {
+        this.prenom = prenom;
+        save();
+    }
 
     @Override
     public boolean isAcheteur() {
@@ -61,15 +67,15 @@ public class Acheteur extends User implements Comparable<Acheteur>{
     }
 
     // TEST
-     public String suivre(String acheteur) {
+     public short suivre(String acheteur) {
         if (this.username.equals(acheteur))
-            return "Vous ne pouvez pas vous suivre vous-même!";
+            return 2;
         else if (acheteursSuivis.contains(acheteur))
-            return "Vous suivez déjà cet acheteur!";
+            return 1;
         else {
             acheteursSuivis.add(acheteur);
             save();
-            return "Vous suivez maintenant " + acheteur + "!";
+            return 0;
         }
     }
     public boolean aAcheteProduit(String nomProduit) {
@@ -89,6 +95,7 @@ public class Acheteur extends User implements Comparable<Acheteur>{
     }
     public void ajouterPoints(int pts) {
         this.points += pts;
+        save();
     }
     public int viderPoints() {
         int pts = this.points;

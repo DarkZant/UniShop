@@ -26,7 +26,7 @@ public class Notification {
                 else
                     s = "Le produit " + produit + " a reçu une promotion!";
             }
-            case 3 -> s = "L'état de la commande avec l'ID " + commandeID + " a changé!";
+            case 3 -> s = "L'état de la commande #" + commandeID + " a changé!";
             case 4 -> s = "Le produit " + produit + " que l'acheteur " + acheteur + " a liké a reçu une promotion!";
             case 5 -> s = "Une solution a été ajouté par " + revendeur + " pour le produit " + produit + "!";
             case 6 -> s = "Une nouvelle commande a été passée pour le produit " + produit + "!";

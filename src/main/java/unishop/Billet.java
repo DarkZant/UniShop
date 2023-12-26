@@ -29,7 +29,7 @@ public class Billet {
         this.produitRempla = produitRempla;
         this.remplaLivre = remplaLivre;
     }
-
+    public boolean isIniLivre() { return iniLivre; }
     public boolean isRemplaLivre() {
         return remplaLivre;
     }
@@ -71,7 +71,7 @@ public class Billet {
         return "ID: " + id + "; Acheteur: " + nomAche + "; Produit problématique: " + produitInitial +
                 (estRetour ? "; Retour" : "; Échange");
     }
-    public boolean pasDeSolution() {return probRev.isEmpty();}
+    public boolean aSolution() {return !probRev.isEmpty();}
     public void setProbRev(String probRev) {
         this.probRev = probRev;
         save();

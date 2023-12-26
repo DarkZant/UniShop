@@ -34,7 +34,7 @@ public class Evaluation {
 
     public String getDisplayFormat() {
         return "Acheteur: " + nomAcheteur + "\nNote sur 5: " + note + "\n" + commentaire +
-                "\nNombre de likes: " + likes + (estInapropprie ? "\nSignalée comme inappropriée" : "");
+                "\nNombre de likes: " + likes.size() + (estInapropprie ? "\nSignalée comme inappropriée" : "");
     }
 
     // TEST

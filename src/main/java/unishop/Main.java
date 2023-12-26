@@ -13,7 +13,6 @@ import java.util.*;
 import static unishop.ControleurAcheteur.menuAcheteur;
 import static unishop.ControleurInvite.menuInvite;
 import static unishop.ControleurRevendeur.menuRevendeur;
-//import java.util.regex.*;
 
 public class Main {
 
@@ -27,7 +26,6 @@ public class Main {
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
     public final static String EMAILS = DATABASE_PATH + "emails.csv";
-    public final static String NOTIFICATIONS = "Notifications.csv";
     public final static String PANIER = "Panier.csv";
     public final static String INFOS = "Infos.csv";
     public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -66,25 +64,19 @@ public class Main {
 
     public static boolean choixOuiNon() {
         System.out.println("1. Oui\n2. Non");
-        try {
-            while (true) {
-                System.out.print("Choisir une option: ");
-                String reponseS = br.readLine();
-                try {
-                    short reponse = Short.parseShort(reponseS);
-                    if (reponse == 1 || reponse == 2)
-                        return reponse == 1;
-                    else
-                        System.out.println("Choix invalide! Veuillez entrer un choix de 1 à 2");
-                }
-                catch(NumberFormatException e){
-                    System.out.println("Veuillez entrer un chiffre de 1 à 2");
-                }
+        while (true) {
+            System.out.print("Choisir une option: ");
+            String reponseS = demanderString();
+            try {
+                short reponse = Short.parseShort(reponseS);
+                if (reponse == 1 || reponse == 2)
+                    return reponse == 1;
+                else
+                    System.out.println("Choix invalide! Veuillez entrer un choix de 1 à 2");
             }
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            return false;
+            catch(NumberFormatException e){
+                System.out.println("Veuillez entrer un chiffre de 1 à 2");
+            }
         }
     }
     public static short selectionChoix(Object[] choix) {
@@ -92,25 +84,19 @@ public class Main {
         for (int i = 0; i < nbChoix; ++i) {
             System.out.println(i + 1 + ". " + choix[i]);
         }
-        try {
-            while (true) {
-                System.out.print("Choisir une option: ");
-                String reponseS = br.readLine();
-                try {
-                    short reponse = Short.parseShort(reponseS);
-                    if (reponse < nbChoix + 1 && reponse > 0)
-                        return reponse;
-                    else
-                        System.out.println("Choix invalide! Veuillez entrer un choix de 1 à " + nbChoix);
-                }
-                catch(NumberFormatException e){
-                    System.out.println("Veuillez entrer un chiffre de 1 à " + nbChoix);
-                }
+        while (true) {
+            System.out.print("Choisir une option: ");
+            String reponseS = demanderString();
+            try {
+                short reponse = Short.parseShort(reponseS);
+                if (reponse < nbChoix + 1 && reponse > 0)
+                    return reponse;
+                else
+                    System.out.println("Choix invalide! Veuillez entrer un choix de 1 à " + nbChoix);
             }
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            return 0;
+            catch(NumberFormatException e){
+                System.out.println("Veuillez entrer un chiffre de 1 à " + nbChoix);
+            }
         }
     }
 
@@ -121,117 +107,100 @@ public class Main {
             return;
         System.out.println("\nRemplissez le formulaire pour créer un compte:");
         System.out.print("Entrez votre username: ");
-        try {
-            String username = br.readLine();
-            List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
-            List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
-            while (acheteurs.contains(username) || revendeurs.contains(username)) {
-                System.out.print("Ce Username existe déjà. Veuillez entrer un autre Username: ");
-                username = br.readLine();
+        String username = demanderString();
+        List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
+        List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
+        while (acheteurs.contains(username) || revendeurs.contains(username)) {
+            System.out.print("Ce Username existe déjà. Veuillez entrer un autre Username: ");
+            username = demanderString();
+        }
+        System.out.print("Entrez votre mot de passe: ");
+        String motDePasse = demanderString();
+        System.out.print("Entrez votre courriel: ");
+        String courriel = demanderCourrielUnique();
+        System.out.print("Entrez votre téléphone: ");
+        long telephone = demanderLong("un téléphone");
+        System.out.print("Entrez votre adresse: ");
+        String adresse = demanderString();
+        if (choix == 1) {
+            String basePath =  ACHETEURS_PATH + username + "/";
+            System.out.print("Entrez votre nom: ");
+            String nom = demanderString();
+            System.out.print("Entrez votre prénom: ");
+            String prenom = demanderString();
+            if (new File(basePath).mkdir()) {
+                String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, nom, prenom,
+                        "0,0", "" + obtenirTempsEnSecondes()};
+                ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
+                ecrireFichierEntier(basePath + PANIER, "0,0");
+                System.out.println("Inscription du compte acheteur " + username + " réussi!");
             }
-            System.out.print("Entrez votre mot de passe: ");
-            String motDePasse = br.readLine();
-            System.out.print("Entrez votre courriel: ");
-            String courriel = br.readLine();
-            ArrayList<String> emails = iniArrayList(lireFichierEnEntier(EMAILS)[0]);
-            while (emails.contains(courriel) || courriel.isEmpty()) {
-                System.out.print("Un compte a déjà été créé avec ce courriel. Veuillez en entrer un autre: ");
-                courriel = br.readLine();
-            }
-            emails.add(courriel);
-            ecrireFichierEntier(EMAILS, String.join(",", emails));
-            System.out.print("Entrez votre téléphone: ");
-            long telephone = demanderLong("un téléphone");
-            System.out.print("Entrez votre adresse: ");
-            String adresse = br.readLine();
-            if (choix == 1) {
-                String basePath =  ACHETEURS_PATH + username + "/";
-                System.out.print("Entrez votre nom: ");
-                String nom = br.readLine();
-                System.out.print("Entrez votre prénom: ");
-                String prenom = br.readLine();
-                if (new File(basePath).mkdir()) {
-                    String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, nom, prenom,
-                            "0,0", "" + obtenirTempsEnSecondes()};
-                    ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
-                    ecrireFichierEntier(basePath + PANIER, "0,0");
-                    System.out.println("Inscription du compte acheteur " + username + " réussi!");
-                }
-                else
-                    System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
+            else
+                System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
 
-            } else {
-                String basePath = REVENDEURS_PATH + username + "/";
-                if (new File(basePath).mkdir()) {
-                    String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0,0,0, ",
-                            "" + obtenirTempsEnSecondes() };
-                    ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
-                    System.out.println("Inscription du compte revendeur " + username + " réussi!");
-                }
-                else
-                    System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
+        } else {
+            String basePath = REVENDEURS_PATH + username + "/";
+            if (new File(basePath).mkdir()) {
+                String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0.0,0, , ",
+                        "" + obtenirTempsEnSecondes() };
+                ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
+                System.out.println("Inscription du compte revendeur " + username + " réussi!");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            else
+                System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
         }
     }
     static User connecterUser() {
-        try {
-            System.out.println("\nConnection (Ne rien rentrer retourne au menu principal): ");
-            String categorie = "";
-            String username = "";
-            while (categorie.isEmpty()) {
-                System.out.print("Entrez votre Username: ");
-                username = br.readLine();
-                if (username.isEmpty())
-                    return null;
-                File dossier = new File (ACHETEURS_PATH + username);
-                if (dossier.exists()) {
-                    categorie = "Acheteurs/";
-                }
-                dossier = new File (REVENDEURS_PATH + username);
-                if (dossier.exists()) {
-                    categorie = "Revendeurs/";
-                }
-                if (categorie.isEmpty()) {
-                    System.out.println("Username inconnu. Veuillez réessayer");
-                }
-            }
-
-            String[] data = lireFichierEnEntier(USERS_PATH + categorie + username + "/" + INFOS);
-            String[] infos = data[0].split(",");
-            String password = infos[0];
-            System.out.print("Entrez votre mot de passe: ");
-            String passwordEntre = br.readLine();
-            if (passwordEntre.isEmpty())
+        System.out.println("\nConnection (Ne rien rentrer retourne au menu principal): ");
+        String categorie = "";
+        String username = "";
+        while (categorie.isEmpty()) {
+            System.out.print("Entrez votre Username: ");
+            username = demanderString();
+            if (username.isEmpty())
                 return null;
-            while (!(password.equals(passwordEntre))) {
-                System.out.print("Mauvais mot de passe! Veuillez recommencer: ");
-                passwordEntre = br.readLine();
+            File dossier = new File (ACHETEURS_PATH + username);
+            if (dossier.exists()) {
+                categorie = "Acheteurs/";
             }
-            if (infos.length == 9) {
-                long creationTime = Long.parseLong(infos[8]);
-                if (obtenirTempsEnSecondes() - creationTime > 86400) {
-                    System.out.println("\nCe compte a été créé il y a plus de 24h et est donc invalide! Veuillez créer"+
-                            "un nouveau compte!");
-                    effacerFichier(USERS_PATH + categorie + username);
-                }
-                else
-                    System.out.println("Votre compte est maintenant activé!");
+            dossier = new File (REVENDEURS_PATH + username);
+            if (dossier.exists()) {
+                categorie = "Revendeurs/";
             }
-            if (categorie.equals("Acheteurs/")){
-                return initialiserAcheteur(username);
-            }
-            else {
-                return initialiserRevendeur(username);
+            if (categorie.isEmpty()) {
+                System.out.println("Username inconnu. Veuillez réessayer");
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
+
+        String[] data = lireFichierEnEntier(USERS_PATH + categorie + username + "/" + INFOS);
+        String[] infos = data[0].split(",");
+        String password = infos[0];
+        System.out.print("Entrez votre mot de passe: ");
+        String passwordEntre = demanderString();
+        if (passwordEntre.isEmpty())
+            return null;
+        while (!(password.equals(passwordEntre))) {
+            System.out.print("Mauvais mot de passe! Veuillez recommencer: ");
+            passwordEntre = demanderString();
         }
-        return null;
+        if (infos.length == 9) {
+            long creationTime = Long.parseLong(infos[8]);
+            if (obtenirTempsEnSecondes() - creationTime > 86400) {
+                System.out.println("\nCe compte a été créé il y a plus de 24h et est donc invalide! Veuillez créer"+
+                        "un nouveau compte!");
+                effacerFichier(USERS_PATH + categorie + username);
+            }
+            else
+                System.out.println("Votre compte est maintenant activé!");
+        }
+        if (categorie.equals("Acheteurs/")){
+            return initialiserAcheteur(username);
+        }
+        else {
+            return initialiserRevendeur(username);
+        }
     }
-    public static Acheteur initialiserAcheteur(String username) throws IOException {
+    public static Acheteur initialiserAcheteur(String username) {
         String path = ACHETEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ INFOS);
         String[] infos = data[0].split(",");
@@ -260,8 +229,10 @@ public class Main {
         return new Acheteur(username, infos[0], infos[1], Long.parseLong(infos[2]),
                 infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), Integer.parseInt(infos[7]), as, rl, bis,
                 panier, cmds, notifs);
+
+
     }
-    static Revendeur initialiserRevendeur(String username) throws IOException {
+    static Revendeur initialiserRevendeur(String username) {
         String path = REVENDEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ INFOS);
         String[] infos = data[0].split(",");
@@ -287,7 +258,7 @@ public class Main {
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
                 Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, cmds, cats, notifs);
     }
-    static Produit initialiserProduit(String titreProduit) throws IOException{
+    static Produit initialiserProduit(String titreProduit) {
         String path = PRODUITS_PATH + titreProduit;
         if (!titreProduit.endsWith(CSV))
             path += CSV;
@@ -309,21 +280,21 @@ public class Main {
         ArrayList<Evaluation> evals = new ArrayList<>();
         for (int i = 5; i < s.length; ++i) {
             String[] e = s[i].split(",");
-            ArrayList<String> elikes = new ArrayList<>(Arrays.asList(e).subList(5, e.length));
-            evals.add(new Evaluation(e[0], Integer.parseInt(e[1]), e[2], Boolean.parseBoolean(e[4]), elikes)) ;
+            ArrayList<String> elikes = new ArrayList<>(Arrays.asList(e).subList(4, e.length));
+            evals.add(new Evaluation(e[0], Integer.parseInt(e[1]), e[2], Boolean.parseBoolean(e[3]), elikes));
         }
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evals);
     }
-    static Commande initialiserCommande(int id) throws IOException {
+    static Commande initialiserCommande(int id) {
         String[] lines = lireFichierEnEntier(COMMANDES_PATH + id + CSV);
         String[] fstLine = lines[0].split(",");
         Commande c = new Commande(Short.parseShort(fstLine[2]), Float.parseFloat(fstLine[3]),
                 Integer.parseInt(fstLine[4]));
         long rec = 0;
         if (c.estLivre())
-            rec = Long.parseLong(fstLine[6]);
-        c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5], rec);
+            rec = Long.parseLong(fstLine[7]);
+        c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5], fstLine[6], rec);
         for (int j = 1; j < lines.length; ++j) {
             String[] line = lines[j].split(",");
             Produit p = initialiserProduit(line[0]);
@@ -332,16 +303,16 @@ public class Main {
         }
         return c;
     }
-    static Billet initialiserBillet(int id) throws IOException{
+    static Billet initialiserBillet(int id) {
         String[] bs = lireFichierEnEntier(BILLETS_PATH + id + CSV)[0].split(",");
         return new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
                 Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8]));
     }
-    public static int demanderIntPositif(String demande) throws IOException {
+    public static int demanderIntPositif(String demande) {
         int i;
         while (true) {
             try {
-                i = Integer.parseInt(br.readLine());
+                i = Integer.parseInt(demanderString());
                 if (i >= 0)
                     return i;
                 else {
@@ -353,11 +324,11 @@ public class Main {
             }
         }
     }
-    public static long demanderLong(String demande) throws IOException {
+    public static long demanderLong(String demande) {
         long l;
         while (true) {
             try {
-                l = Long.parseLong(br.readLine());
+                l = Long.parseLong(demanderString());
                 return l;
             }
             catch (NumberFormatException e) {
@@ -365,11 +336,11 @@ public class Main {
             }
         }
     }
-    public static float demanderFloat(String demande) throws IOException {
+    public static float demanderFloat(String demande) {
         float prix;
         while (true) {
             try {
-                prix = arrondirPrix(Float.parseFloat(br.readLine()));
+                prix = arrondirPrix(Float.parseFloat(demanderString()));
                 if (prix >= 0)
                     return arrondirPrix(prix);
                 else
@@ -378,6 +349,14 @@ public class Main {
             catch (NumberFormatException e) {
                 System.out.print("Veuillez entrer " + demande + " valide (Nombre à virgule): ");
             }
+        }
+    }
+    public static String demanderString() {
+        try {
+            return br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "ERROR";
         }
     }
 
@@ -389,8 +368,13 @@ public class Main {
         return System.currentTimeMillis() / 1000;
     }
 
-    public static String[] lireFichierEnEntier(String path) throws IOException {
-        return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8).toArray(new String[0]);
+    public static String[] lireFichierEnEntier(String path) {
+        try {
+            return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8).toArray(new String[0]);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new String[0];
+        }
     }
 
     public static void ecrireFichierEntier(String path, String toWrite) {
@@ -426,5 +410,16 @@ public class Main {
         }
         if (!file.delete())
             System.out.println("Compte pas effacé: " + file);
+    }
+    public static String demanderCourrielUnique() {
+        String courriel = demanderString();
+        ArrayList<String> emails = iniArrayList(lireFichierEnEntier(EMAILS)[0]);
+        while (emails.contains(courriel) || courriel.isEmpty()) {
+            System.out.print("Un compte a déjà été créé avec ce courriel. Veuillez en entrer un autre: ");
+            courriel = demanderString();
+        }
+        emails.add(courriel);
+        ecrireFichierEntier(EMAILS, String.join(",", emails));
+        return courriel;
     }
 }

@@ -32,20 +32,20 @@ class AcheteurTest {
     void suivre_ERREUR1() {
         String acheteur = "javier";
 
-        String resultat = javier.suivre(acheteur);
+        short resultat = javier.suivre(acheteur);
 
         // Retour correct
-        assertEquals("Vous ne pouvez pas vous suivre vous-même!", resultat);
+        assertEquals(2, resultat);
     }
 
     @Test
     void suivre_ERREUR2() {
         String acheteur = "Pedro";
 
-        String resultat = javier.suivre(acheteur);
+        short resultat = javier.suivre(acheteur);
 
         // Retour correct
-        assertEquals("Vous suivez déjà cet acheteur!", resultat);
+        assertEquals(1, resultat);
     }
 
     @Test
@@ -58,12 +58,12 @@ class AcheteurTest {
         expectedArray.add("Mitchell");
         expectedArray.add(acheteur);
 
-        String resultat = javier.suivre(acheteur);
+        short resultat = javier.suivre(acheteur);
 
         // ArrayList correct
         assertEquals(expectedArray, javier.getSuivis());
         // Retour correct
-        assertEquals("Vous suivez maintenant Martin!", resultat);
+        assertEquals(0, resultat);
     }
 
     @Test

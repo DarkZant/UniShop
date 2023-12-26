@@ -47,13 +47,6 @@ public abstract class User {
     public ArrayList<Billet> getBillets() {
         return new ArrayList<>(billets);
     }
-    public Billet trouverBillet(int id) {
-        for (Billet b : billets) {
-            if (b.id == id)
-                return b;
-        }
-        return null;
-    }
     public Commande trouverCommande(int id) {
         for (Commande c : commandes)
             if (c.getId() == id)
@@ -104,17 +97,23 @@ public abstract class User {
 
     public void setEmail(String email) {
         this.email = email;
+        save();
     }
 
     public void setPhone(long phone) {
         this.phone = phone;
+        save();
     }
 
     public void setAddress(String address) {
         this.address = address;
+        save();
     }
 
-    public void setPassword (String password) { this.password = password; }
+    public void setPassword (String password) {
+        this.password = password;
+        save();
+    }
 
     public void addNotifications(Notification n) {
         this.notifications.push(n);
