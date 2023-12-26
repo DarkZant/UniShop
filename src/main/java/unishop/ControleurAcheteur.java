@@ -184,7 +184,7 @@ public class ControleurAcheteur {
                             if (choix == ess.size())
                                 continue;
                             Evaluation e = es.get(choix - 1);
-                            System.out.println(e.getDisplayFormat());
+                            System.out.println("\n" + e.getDisplayFormat());
                             if (e.nomAcheteur.equals(acheteur.getUsername())) {
                                 System.out.println("\nC'est votre propre évaluation!");
                                 continue;
@@ -195,38 +195,26 @@ public class ControleurAcheteur {
                             if (choix == 3)
                                 continue;
                             Acheteur a = initialiserAcheteur(e.nomAcheteur);
-                            Evaluation evalAch = null;
-                            for (Evaluation eas : a.getEvals()) {
-                                if (eas.isEqual(e)) {
-                                    evalAch = eas;
-                                    break;
-                                }
-                            }
-                            if (evalAch == null) {
-                                System.out.println("Erreur: Eval pas trouvé chez l'acheteur");
-                                continue;
-                            }
                             if (choix == 1) {
-                                if (evalAch.getLikes() == 0) {
+                                if (e.getLikes() == 0)
                                     a.ajouterPoints(10);
-                                }
-                                evalAch.ajouterLike();
-                                a.saveEvals();
-                                e.ajouterLike();
-                                p.save();
-                                System.out.println("Vous avez liké l'évaluation avec succès!");
-                            }
-                            else {
-                                if (evalAch.signaler()) {
-                                    if (evalAch.getLikes() == 0)
-                                        a.ajouterPoints(-10);
-                                    a.saveEvals();
-                                    e.signaler();
+                                if (e.ajouterLike(acheteur.getUsername())) {
                                     p.save();
-                                    System.out.println("Vous avez signalé cette évaluation!");
+                                    System.out.println("\nVous avez liké l'évaluation de " + a.getUsername() + "!");
                                 }
                                 else
-                                    System.out.println("Cette évaluation était déjà signalée!");
+                                    System.out.println("\nVous avez déjà liké cette évaluation!");
+                            }
+                            else {
+                                if (e.signaler()) {
+                                    if (e.getLikes() == 0)
+                                        a.ajouterPoints(-10);
+                                    e.signaler();
+                                    p.save();
+                                    System.out.println("\nVous avez signalé cette évaluation!");
+                                }
+                                else
+                                    System.out.println("\nCette évaluation était déjà signalée!");
                             }
 
                         }
@@ -266,8 +254,12 @@ public class ControleurAcheteur {
 
     }
     static void gererCommandes() {
-        System.out.println("\nChoisissez une commande: ");
         ArrayList<Commande> cmds = acheteur.getCommandes();
+        if (cmds.isEmpty()) {
+            System.out.println("\nVous n'avez aucunes commandes!");
+            return;
+        }
+        System.out.println("\nChoisissez une commande: ");
         String[] cs = new String[cmds.size() + 1];
         for (int i = 0; i < cmds.size(); ++i) {
             cs[i] = cmds.get(i).getMenuDisplay();
@@ -280,7 +272,6 @@ public class ControleurAcheteur {
         System.out.println("\nCommande #" + cmd.getId());
         System.out.println(cmd.afficher());
         System.out.println("Votre commande est " + cmd.getEtat() + ".");
-        String cmdpath = ACHETEURS_PATH + acheteur.getUsername() + "/Commandes/";
         while (true) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Confirmer la livraison", "Retourner un produit", "Évaluer un produit",
@@ -290,8 +281,6 @@ public class ControleurAcheteur {
                     switch (cmd.confirmerLivraison()) {
                         case 0 -> {
                             System.out.println("\nL'état de votre commande a été changé avec succès!");
-                            cmd.saveAfter(cmdpath);
-                            //TODO Update commande revendeur
                         }
                         case 1 -> System.out.println("\nVotre commande est toujours en production.");
                         case 2 -> System.out.println("\nVous avez déjà confirmé la livraison de cette commande!");
@@ -335,8 +324,7 @@ public class ControleurAcheteur {
                         System.out.println("La différence de prix est de " + differencePrix + "$.");
                         Commande echange = new Commande((short)0, differencePrix, 0);
                         echange.addProduit(pro);
-                        echange.passerCommande(ACHETEURS_PATH + acheteur.getUsername() + "/Commandes",
-                                acheteur.getAddress());
+                        echange.passerCommande(acheteur.getAddress());
                         acheteur.ajouterCommande(echange);
                         r.ajouterCommande(echange);
                         System.out.println("\nVotre demande " + (b.estRetour ? "de retour" : "d'échange") + " a été " +
@@ -356,6 +344,10 @@ public class ControleurAcheteur {
                     }
                 }
                 case 3 -> {
+                    if (!cmd.estLivre()) {
+                        System.out.println("\nVotre commande n'a pas encore été livrée!");
+                        continue;
+                    }
                     Produit p = cmd.getChoixProduit(true);
                     if (p == null)
                         continue;
@@ -365,9 +357,17 @@ public class ControleurAcheteur {
                     if (cmd.estEnProduction()) {
                         System.out.println("\nVoulez-vous vraiment annuler votre commande?");
                         if (choixOuiNon()) {
-                            effacerFichier(cmdpath + cmd.getId() + CSV);
+                            effacerFichier(COMMANDES_PATH + cmd.getId() + CSV);
                             acheteur.annulerCommande(cmd);
-                            //TODO UPDATE COMMANDE REVENDEUR
+                            try {
+                                for (String re : cmd.getRevendeurs()) {
+                                    Revendeur r = initialiserRevendeur(re);
+                                    r.annulerCommande(r.trouverCommande(cmd.getId()));
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             System.out.println("\nVous avez annulé votre commande #" + cmd.getId() + "!");
                             return;
                         }
@@ -424,26 +424,23 @@ public class ControleurAcheteur {
                     demanderIntPositif("une date d'expiration");
                     System.out.print("Entrez le CVV: ");
                     demanderIntPositif("un CVV");
-                    Commande c = acheteur.panier.passerCommande(ACHETEURS_PATH +
-                            acheteur.getUsername() + "/Commandes", adresse);
+                    Commande c = acheteur.panier.passerCommande(adresse);
                     acheteur.ajouterCommande(c.copy());
-                    acheteur.panier.vider();
-                    System.out.println("\nVotre commande a été passée avec succès!");
+
                     ArrayList<String> revens = new ArrayList<>();
                     for (Produit p : c.getProduitsP()) {
-                        if (revens.contains(p.nomReven))
-                            continue;
-
+                        Revendeur r = initialiserRevendeur(p.nomReven);
+                        Notification notifRev = new Notification(6, acheteur.getUsername(), p.nomReven,
+                                p.titre, c.getId());
+                        r.addNotifications(notifRev);
+                        if (!revens.contains(p.nomReven)) {
+                            r.ajouterCommande(c);
+                            revens.add(r.getUsername());
+                        }
                     }
-
+                    acheteur.panier.vider();
+                    System.out.println("\nVotre commande a été passée avec succès!");
                     //TODO NOTIF
-                    for (Produit element : c.getProduitsP()) {
-                        Notification notifRev = new Notification(6, acheteur.getUsername(), element.nomReven,
-                                element.titre, c.getId());
-                        Revendeur rev = initialiserRevendeur(element.nomReven);
-                        rev.addNotifications(notifRev);
-                    }
-
                     System.out.println("Votre identifiant de commanque unique est: " + c.getId());
                 }
                 catch (IOException e) {
@@ -476,17 +473,8 @@ public class ControleurAcheteur {
                 choix = selectionChoix(new String[] {"Confirmer l'arrivée du produit de remplacement",
                         "Retourner aux billets", "Retourner au menu"});
                 if (choix == 1) {
-                    if (b.comfirmerLivraisonRempla()) {
-                        try {
-                            Revendeur r = initialiserRevendeur(initialiserProduit(b.produitInitial).nomReven);
-                            r.trouverBillet(b.id).comfirmerLivraisonRempla();
-                            r.save();
-                            acheteur.save();
-                            System.out.println("\nVous avez confirmé la livraison du produit de remplacement!");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    if (b.comfirmerLivraisonRempla())
+                        System.out.println("\nVous avez confirmé la livraison du produit de remplacement!");
                     else
                         System.out.println("\nVous avez déjà confirmé la réception du produit de remplacement!");
                 }
@@ -508,13 +496,12 @@ public class ControleurAcheteur {
             }
             System.out.print("Entrez un commentaire sur le produit: ");
             String comment = br.readLine();
-            Evaluation e = new Evaluation(acheteur.getUsername(), note, comment, 0, false);
+            Evaluation e = new Evaluation(acheteur.getUsername(), note, comment, false, new ArrayList<>());
             p.addEvaluation(e);
-            acheteur.ajouterEvaluation(e);
             System.out.println("\nVotre évaluation a été écrite avec succès!");
 
             //TODO NOTIF
-            Notification notif =new Notification(7, acheteur.getUsername(), p.nomReven, p.titre, -1);
+            Notification notif = new Notification(7, acheteur.getUsername(), p.nomReven, p.titre, -1);
             Revendeur r = initialiserRevendeur(p.nomReven);
             r.addNotifications(notif);
 
@@ -527,97 +514,93 @@ public class ControleurAcheteur {
     }
     static void gererAcheteursSuivis() { System.out.println("\nTODO"); }
     static void rechercherRevendeur() {
-        System.out.println("\nQuel type de recherche voulez-vous faire?");
-        try {
-            ArrayList<String> revendeurSelect = new ArrayList<>();
-            List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
-            String demandeUtilisateur = "";
-            boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
-                    "Recherche par filtre"});
-
-            if (estRecherche) {
-                System.out.print("Entrez votre recherche: ");
-                demandeUtilisateur = br.readLine();
-            } else {
-                System.out.println("Choisissez votre type de filtre: ");
-                choix = selectionChoix(new String[]{"Catégorie de produits vendues", "Nom", "Adresse"});
-                switch (choix) {
-                    case 1 -> {
-                        System.out.println("Choisissez une catégorie: ");
-                        demandeUtilisateur = Categorie.getCat(selectionChoix(Categorie.categories) - 1);
-
-                    }
-                    case 2 -> {
-                        System.out.println("Choisissez un nom :");
-                        demandeUtilisateur = br.readLine();
-
-                    }
-                    case 3 -> {
-                        System.out.print("Choisissez une adresse ");
-                        demandeUtilisateur = br.readLine();
-                    }
-                }
-            }
-
-            for (String r : revendeurs) {
-                String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/Infos.csv");
-                String adresse = contenu[0].split(",")[5];
-                List<String> categories = Arrays.asList(contenu[2].split(","));
+        while (true) {
+            System.out.println("\nQuel type de recherche voulez-vous faire?");
+            try {
+                ArrayList<String> revendeurSelect = new ArrayList<>();
+                List<String> revendeurs = fichiersDansDossier(REVENDEURS_PATH);
+                String demandeUtilisateur = "";
+                boolean estRecherche = 1 == selectionChoix(new String[]{"Recherche par mots-clés",
+                        "Recherche par filtre"});
 
                 if (estRecherche) {
-                    if (r.contains(demandeUtilisateur))
-                        revendeurSelect.add(r);
+                    System.out.print("Entrez votre recherche: ");
+                    demandeUtilisateur = br.readLine();
                 } else {
+                    System.out.println("Choisissez votre type de filtre: ");
+                    choix = selectionChoix(new String[]{"Catégorie de produits vendues", "Nom", "Adresse"});
                     switch (choix) {
                         case 1 -> {
-                            if (categories.contains(demandeUtilisateur))
-                                revendeurSelect.add(r);
+                            System.out.println("Choisissez une catégorie: ");
+                            demandeUtilisateur = Categorie.getCat(selectionChoix(Categorie.categories) - 1);
+
                         }
                         case 2 -> {
-                            if (r.contains(demandeUtilisateur))
-                                revendeurSelect.add(r);
+                            System.out.print("Entrez un nom: ");
+                            demandeUtilisateur = br.readLine();
+
                         }
                         case 3 -> {
-                            if (adresse.contains(demandeUtilisateur))
-                                revendeurSelect.add(r);
+                            System.out.print("Entrez une adresse: ");
+                            demandeUtilisateur = br.readLine();
                         }
                     }
                 }
-            }
-            if (revendeurSelect.isEmpty()) {
-                System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
-                return;
-            }
-            revendeurSelect.add("Faire une nouvelle recherche");
-            revendeurSelect.add("Retourner au menu acheteur");
-            while (true) {
-                System.out.println("\nChoisissez un revendeur: ");
-                choix = selectionChoix(revendeurSelect.toArray());
-                if (choix == revendeurSelect.size() - 1)
-                    return;
-                else if (choix == revendeurSelect.size())
-                    return;
-                Revendeur r = initialiserRevendeur(revendeurSelect.get(choix - 1));
-                System.out.println("\n" + r.afficherMetriques());
-                System.out.println("\nQue voulez-vous faire ensuite?");
-                choix = selectionChoix(new String[]{"Liker le Revendeur", "Retourner au résultat de la recherche"});
-                if (choix == 2) {
-                    return;
-                } else {
-                    if (r.estDejaSuiviPar(acheteur.getUsername()))
-                        System.out.println("Vous suivez déjà ce revendeur.");
-                    else {
-                        r.ajouterFollower(acheteur.getUsername());
-                        System.out.println("\nFélicitations! Vous suivez maintenant le revendeur.");
+
+                for (String r : revendeurs) {
+                    String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/" + INFOS);
+                    String adresse = contenu[0].split(",")[3];
+                    List<String> categories = Arrays.asList(contenu[2].split(","));
+
+                    if (estRecherche) {
+                        if (r.contains(demandeUtilisateur))
+                            revendeurSelect.add(r);
+                    } else {
+                        switch (choix) {
+                            case 1 -> {
+                                if (categories.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                            case 2 -> {
+                                if (r.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                            case 3 -> {
+                                if (adresse.contains(demandeUtilisateur))
+                                    revendeurSelect.add(r);
+                            }
+                        }
                     }
                 }
-
+                if (revendeurSelect.isEmpty()) {
+                    System.out.println("\nAucun résultat pour cette recherche. Veuillez réessayer.");
+                    continue;
+                }
+                revendeurSelect.add("Faire une nouvelle recherche");
+                revendeurSelect.add("Retourner au menu acheteur");
+                while (true) {
+                    System.out.println("\nChoisissez un revendeur: ");
+                    choix = selectionChoix(revendeurSelect.toArray());
+                    if (choix == revendeurSelect.size() - 1)
+                        break;
+                    else if (choix == revendeurSelect.size())
+                        return;
+                    Revendeur r = initialiserRevendeur(revendeurSelect.get(choix - 1));
+                    System.out.println(r.afficherMetriques());
+                    System.out.println("\nQue voulez-vous faire ensuite?");
+                    choix = selectionChoix(new String[]{"Liker le revendeur", "Retourner au résultat de la recherche"});
+                    if (choix == 1) {
+                        if (r.ajouterFollower(acheteur.getUsername()))
+                            System.out.println("\nFélicitations! Vous suivez maintenant le revendeur.");
+                        else
+                            System.out.println("\nVous suivez déjà ce revendeur.");
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
+                rechercherProduits();
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Quelque chose s'est mal passé. Veuillez réessayer.");
-            rechercherProduits();
         }
     }
 

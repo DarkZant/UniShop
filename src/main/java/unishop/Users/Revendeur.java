@@ -12,7 +12,6 @@ public class Revendeur extends User{
     private int nbProduitsVendus;
     ArrayList<String> followers;
     ArrayList<Produit> produits;
-    ArrayList<Commande> commandes;
     ArrayList<String> categorieVendu;
 
     public Revendeur(String u, String p, String email, long phone, String address, float revenu,
@@ -34,6 +33,9 @@ public class Revendeur extends User{
         this.produits.add(p);
     }
     public void ajouterCatVendu(String c) {this.categorieVendu.add(c);}
+    public ArrayList<String> getFollowers() {
+        return new ArrayList<>(followers);
+    }
     @Override
     public void save() {
         StringJoiner sj = new StringJoiner("\n");
@@ -42,29 +44,27 @@ public class Revendeur extends User{
         sj.add(String.join(",", infos));
         sj.add(String.join(",", followers));
         sj.add(String.join(",", categorieVendu));
-        if (billets.isEmpty())
-            sj.add("");
-        for (Billet b : this.billets)
-            sj.add(b.saveFormat());
-
+        sj.add(formatSaveCommande());
+        sj.add(formatSaveBillet());
+        sj.add(formatSaveNotifications());
         Main.ecrireFichierEntier(Main.REVENDEURS_PATH + this.username + "/Infos.csv", sj.toString());
     }
     public Produit getProduitAvecChoix() {
-        Produit[] ps = produits.toArray(new Produit[0]);
-        String[] s;
-        s = new String[ps.length];
+        String[] s = new String[produits.size() + 1];
         int i = 0;
-        for (Produit p : ps) {
+        for (Produit p : produits) {
             s[i] = p.getQuickDisplay();
             ++i;
         }
-        return ps[Main.selectionChoix(s) - 1];
+        s[produits.size()] = "Retourner au menu";
+        short choix = Main.selectionChoix(s);
+        if (choix == s.length)
+            return null;
+        return produits.get(choix - 1);
     }
     @Override
     public void ajouterCommande(Commande c) {
         commandes.add(c);
-        Main.ecrireFichierEntier(Main.REVENDEURS_PATH + username + "/Commandes/" + c.getId() +
-                Main.CSV, c.formatSaveRevendeur());
         save();
     }
     @Override
@@ -73,19 +73,11 @@ public class Revendeur extends User{
                 "$\nNombre de produits vendus: " + nbProduitsVendus +
                 "\nCatégorie vendues : " + String.join(", ", categorieVendu);
     }
-    @Override
-    public void saveNotifications() {
-        StringJoiner sj = new StringJoiner("\n");
-        for (Notification n : notifications)
-            sj.add(n.saveFormat());
-        Main.ecrireFichierEntier(Main.REVENDEURS_PATH + username + "/Notifications.csv",
-                sj.toString());
-    }
-    public void ajouterFollower(String acheteur) {
+    public boolean ajouterFollower(String acheteur) {
+        if (followers.contains(acheteur))
+            return false;
         followers.add(acheteur);
         save();
-    }
-    public boolean estDejaSuiviPar(String acheteur) {
-        return this.followers.contains(acheteur);
+        return true;
     }
 }

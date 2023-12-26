@@ -1,5 +1,6 @@
-2,e,1,r,0.0,0
+2,revendeur1@unishop.ca,1111111111,1 rue Revendeur1,0.0,0
+Acheteur1
 
 
-18,a,Produit2,no bueno,false,false,,Produit2,true
-17,a,Produit2,wae,true,false,,,false
+
+6,Acheteur1,Revendeur1,Produit1,0

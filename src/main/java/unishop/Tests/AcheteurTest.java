@@ -22,15 +22,15 @@ class AcheteurTest {
         acheteursSuivis.add("Jose");
         acheteursSuivis.add("Mitchell");
 
-        // Nouveau acheteur
-        javier = new Acheteur("Javier", "123","123",1232323332,"123","Medina","Javier"
-                ,100,50,acheteursSuivis,new ArrayList<>(),new ArrayList<>(),
-                new Commande((short) 1,1.5f,1),new ArrayList<>(),new ArrayList<>(), new Stack<>());
+//       Nouvel acheteur
+        javier = new Acheteur("javier", "123","123",1232323332,"123","Medina",
+                "Javier",100,50,acheteursSuivis,new ArrayList<>(),new ArrayList<>(),
+                new Commande((short) 1,1.5f,1),new ArrayList<>(), new Stack<>());
     }
 
     @Test
     void suivre_ERREUR1() {
-        String acheteur = "Javier";
+        String acheteur = "javier";
 
         String resultat = javier.suivre(acheteur);
 
@@ -70,6 +70,7 @@ class AcheteurTest {
     void afficherMetriques() {
         String resultat = javier.afficherMetriques();
 
-        assertEquals("\nNombre de points: 100\nNombre total de commandes effectuées: 0\nNombre de followers: 0", resultat);
+        assertEquals("\nNombre de points: 100\nNombre total de commandes effectuées: 0" +
+                "\nNombre de followers: 0", resultat);
     }
 }

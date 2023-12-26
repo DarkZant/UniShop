@@ -250,7 +250,7 @@ public class ControleurInvite {
                 }
 
                 for (String r : revendeurs) {
-                    String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/Infos.csv");
+                    String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/" + INFOS);
                     String adresse = contenu[0].split(",")[5];
                     List<String> categories = Arrays.asList(contenu[2].split(","));
 

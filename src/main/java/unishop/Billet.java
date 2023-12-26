@@ -74,6 +74,7 @@ public class Billet {
     public boolean pasDeSolution() {return probRev.isEmpty();}
     public void setProbRev(String probRev) {
         this.probRev = probRev;
+        save();
     }
 
     // TEST
@@ -82,6 +83,7 @@ public class Billet {
             return false;
         else {
             this.iniLivre = true;
+            save();
             return true;
         }
     }
@@ -92,7 +94,11 @@ public class Billet {
             return false;
         else {
             this.remplaLivre = true;
+            save();
             return true;
         }
+    }
+    public void save() {
+        Main.ecrireFichierEntier(Main.BILLETS_PATH + id + Main.CSV, saveFormat());
     }
 }

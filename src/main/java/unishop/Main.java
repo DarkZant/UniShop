@@ -22,9 +22,14 @@ public class Main {
     public final static String USERS_PATH = DATABASE_PATH + "Users/";
     public final static String ACHETEURS_PATH = USERS_PATH + "Acheteurs/";
     public final static String REVENDEURS_PATH = USERS_PATH + "Revendeurs/";
+    public final static String COMMANDES_PATH = DATABASE_PATH + "Commandes/";
+    public final static String BILLETS_PATH = DATABASE_PATH + "Billets/";
     public final static String CSV = ".csv";
     public final static String IDS = DATABASE_PATH + "IDs.csv";
     public final static String EMAILS = DATABASE_PATH + "emails.csv";
+    public final static String NOTIFICATIONS = "Notifications.csv";
+    public final static String PANIER = "Panier.csv";
+    public final static String INFOS = "Infos.csv";
     public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
     private static User connectedUser = null;
@@ -140,28 +145,27 @@ public class Main {
             System.out.print("Entrez votre adresse: ");
             String adresse = br.readLine();
             if (choix == 1) {
-                String basePath =  ACHETEURS_PATH + username;
+                String basePath =  ACHETEURS_PATH + username + "/";
                 System.out.print("Entrez votre nom: ");
                 String nom = br.readLine();
                 System.out.print("Entrez votre prénom: ");
                 String prenom = br.readLine();
-                if (new File(basePath).mkdir() && new File(basePath + "/Commandes").mkdir()) {
+                if (new File(basePath).mkdir()) {
                     String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, nom, prenom,
                             "0,0", "" + obtenirTempsEnSecondes()};
-                    ecrireFichierEntier(basePath + "/Infos.csv", String.join(",", infos) + "\n\n\n");
-                    ecrireFichierEntier(basePath + "/Panier.csv", "0,0");
-                    ecrireFichierEntier(basePath + "Evaluations.csv", "");
+                    ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
+                    ecrireFichierEntier(basePath + PANIER, "0,0");
                     System.out.println("Inscription du compte acheteur " + username + " réussi!");
                 }
                 else
                     System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
 
             } else {
-                String basePath = REVENDEURS_PATH + username;
-                if (new File(basePath).mkdir() && new File(basePath + "/Commandes").mkdir()) {
+                String basePath = REVENDEURS_PATH + username + "/";
+                if (new File(basePath).mkdir()) {
                     String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, "0,0,0, ",
                             "" + obtenirTempsEnSecondes() };
-                    ecrireFichierEntier(basePath + "/Infos.csv", String.join(",", infos) + "\n\n");
+                    ecrireFichierEntier(basePath + INFOS, String.join(",", infos) + "\n\n\n\n\n");
                     System.out.println("Inscription du compte revendeur " + username + " réussi!");
                 }
                 else
@@ -194,7 +198,7 @@ public class Main {
                 }
             }
 
-            String[] data = lireFichierEnEntier(USERS_PATH + categorie + username + "/Infos.csv");
+            String[] data = lireFichierEnEntier(USERS_PATH + categorie + username + "/" + INFOS);
             String[] infos = data[0].split(",");
             String password = infos[0];
             System.out.print("Entrez votre mot de passe: ");
@@ -227,73 +231,52 @@ public class Main {
         }
         return null;
     }
-    static Acheteur initialiserAcheteur(String username) throws IOException {
+    public static Acheteur initialiserAcheteur(String username) throws IOException {
         String path = ACHETEURS_PATH + username + "/";
-        String[] data = lireFichierEnEntier( path+ "Infos.csv");
+        String[] data = lireFichierEnEntier( path+ INFOS);
         String[] infos = data[0].split(",");
         ArrayList<String> as =  iniArrayList(data[1]);
         ArrayList<String> rl =  iniArrayList(data[2]);
-        ArrayList<Billet> bis = new ArrayList<>();
-        for (int i = 3; i < data.length; ++i) {
-            String[] bs = data[i].split(",");
-            bis.add(new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
-                     Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8])));
-        }
-        String[] s = lireFichierEnEntier(path +"Panier.csv");
-        String[] i = s[0].split(",");
-        float coutT = Float.parseFloat(i[0]);
-        int pts = Integer.parseInt(i[1]);
-        Commande panier = new Commande((short) 0, coutT, pts);
-        for (int j = 1; j < s.length; ++j) {
-            Produit p = initialiserProduit(s[j]);
-            panier.addInitial(p);
-        }
-        ArrayList<Evaluation> es = new ArrayList<>();
-        s = lireFichierEnEntier(path + "Evaluations.csv");
-        for (String e : s) {
-            String[] ea = e.split(",");
-            es.add(new Evaluation(username, Integer.parseInt(ea[0]), ea[1], Integer.parseInt(ea[2]),
-                    Boolean.parseBoolean(ea[3])));
-        }
         ArrayList<Commande> cmds = new ArrayList<>();
-        String commandesPath = path + "Commandes/";
-        for (String l : fichiersDansDossier(commandesPath)) {
-            String[] all = lireFichierEnEntier(commandesPath + l);
-            String[] fstLine = all[0].split(",");
-            Commande c = new Commande(Short.parseShort(fstLine[2]), Float.parseFloat(fstLine[3]),
-                    Integer.parseInt(fstLine[4]));
-            long rec = 0;
-            if (c.estLivre())
-                rec = Long.parseLong(fstLine[6]);
-            c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5], rec);
-            for (int j = 1; j < all.length; ++j) {
-                String[] line = all[j].split(",");
-                Produit p = initialiserProduit(line[0]);
-                p.setUniqueId(Integer.parseInt(line[1]));
-                c.addInitial(p);
-            }
-            cmds.add(c);
-        }
+        for (String id : iniArrayList(data[3]))
+            cmds.add(initialiserCommande(Integer.parseInt(id)));
+        ArrayList<Billet> bis = new ArrayList<>();
+        for (String id : iniArrayList(data[4]))
+            bis.add(initialiserBillet(Integer.parseInt(id)));
         Stack<Notification> notifs = new Stack<>();
-        for (String l : lireFichierEnEntier(path + "Notifications.csv")) {
-            String[] n = l.split(",");
+        for (int i = 5; i < data.length; ++i) {
+            String[] n = data[i].split(",");
             notifs.push(new Notification(Integer.parseInt(n[0]), n[1], n[2], n[3], Integer.parseInt(n[4])));
+        }
+        String[] dataPanier = lireFichierEnEntier(path + PANIER);
+        String[] infosPanier = dataPanier[0].split(",");
+        float coutT = Float.parseFloat(infosPanier[0]);
+        int pts = Integer.parseInt(infosPanier[1]);
+        Commande panier = new Commande((short) 0, coutT, pts);
+        for (int j = 1; j < dataPanier.length; ++j) {
+            Produit p = initialiserProduit(dataPanier[j]);
+            panier.addInitial(p);
         }
         return new Acheteur(username, infos[0], infos[1], Long.parseLong(infos[2]),
                 infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), Integer.parseInt(infos[7]), as, rl, bis,
-                panier, cmds, es, notifs);
+                panier, cmds, notifs);
     }
     static Revendeur initialiserRevendeur(String username) throws IOException {
         String path = REVENDEURS_PATH + username + "/";
-        String[] data = lireFichierEnEntier( path+ "Infos.csv");
+        String[] data = lireFichierEnEntier( path+ INFOS);
         String[] infos = data[0].split(",");
         ArrayList<String> followers = iniArrayList(data[1]);
         ArrayList<String> cats = iniArrayList(data[2]);
+        ArrayList<Commande> cmds = new ArrayList<>();
+        for (String id : iniArrayList(data[3]))
+            cmds.add(initialiserCommande(Integer.parseInt(id)));
         ArrayList<Billet> bis = new ArrayList<>();
-        for (int i = 3; i < data.length; ++i) {
-            String[] bs = data[i].split(",");
-            bis.add(new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
-                    Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8])));
+        for (String id : iniArrayList(data[4]))
+            bis.add(initialiserBillet(Integer.parseInt(id)));
+        Stack<Notification> notifs = new Stack<>();
+        for (int i = 5; i < data.length; ++i) {
+            String[] n = data[i].split(",");
+            notifs.push(new Notification(Integer.parseInt(n[0]), n[1], n[2], n[3], Integer.parseInt(n[4])));
         }
         ArrayList<Produit> ps = new ArrayList<>();
         for(String pc : fichiersDansDossier(PRODUITS_PATH)){
@@ -301,14 +284,8 @@ public class Main {
             if (r.equals(username))
                 ps.add(initialiserProduit(pc));
         }
-        Stack<Notification> notifs = new Stack<>();
-        for (String l : lireFichierEnEntier(path + "Notifications.csv")) {
-            String[] n = l.split(",");
-            notifs.push(new Notification(Integer.parseInt(n[0]), n[1], n[2], n[3], Integer.parseInt(n[4])));
-        }
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
-                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, new ArrayList<>(), cats,
-                notifs);
+                Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, cmds, cats, notifs);
     }
     static Produit initialiserProduit(String titreProduit) throws IOException{
         String path = PRODUITS_PATH + titreProduit;
@@ -329,15 +306,36 @@ public class Main {
             case 4 -> c = new CBureau(cs[1], cs[2], cs[3]);
         }
         ArrayList<String> likes =  iniArrayList(s[4]);
-        Evaluation[] evals = new Evaluation[s.length - 5];
+        ArrayList<Evaluation> evals = new ArrayList<>();
         for (int i = 5; i < s.length; ++i) {
             String[] e = s[i].split(",");
-            evals[i - 5] = new Evaluation(e[0], Integer.parseInt(e[1]), e[2], Integer.parseInt(e[3]),
-                    Boolean.parseBoolean(e[4]));
+            ArrayList<String> elikes = new ArrayList<>(Arrays.asList(e).subList(5, e.length));
+            evals.add(new Evaluation(e[0], Integer.parseInt(e[1]), e[2], Boolean.parseBoolean(e[4]), elikes)) ;
         }
-        ArrayList<Evaluation> evalsL = new ArrayList<>(Arrays.asList(evals));
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
-                images, videos, c, likes, evalsL);
+                images, videos, c, likes, evals);
+    }
+    static Commande initialiserCommande(int id) throws IOException {
+        String[] lines = lireFichierEnEntier(COMMANDES_PATH + id + CSV);
+        String[] fstLine = lines[0].split(",");
+        Commande c = new Commande(Short.parseShort(fstLine[2]), Float.parseFloat(fstLine[3]),
+                Integer.parseInt(fstLine[4]));
+        long rec = 0;
+        if (c.estLivre())
+            rec = Long.parseLong(fstLine[6]);
+        c.addPastInfo(Integer.parseInt(fstLine[0]), fstLine[1], fstLine[5], rec);
+        for (int j = 1; j < lines.length; ++j) {
+            String[] line = lines[j].split(",");
+            Produit p = initialiserProduit(line[0]);
+            p.setUniqueId(Integer.parseInt(line[1]));
+            c.addInitial(p);
+        }
+        return c;
+    }
+    static Billet initialiserBillet(int id) throws IOException{
+        String[] bs = lireFichierEnEntier(BILLETS_PATH + id + CSV)[0].split(",");
+        return new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
+                Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8]));
     }
     public static int demanderIntPositif(String demande) throws IOException {
         int i;

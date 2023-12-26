@@ -41,6 +41,7 @@ public abstract class User {
         StringJoiner sj = new StringJoiner("\n");
         for (int i = 0; i < notifications.size(); ++i)
             sj.add(notifications.pop().afficher());
+        save();
         return sj.toString();
     }
     public ArrayList<Billet> getBillets() {
@@ -53,10 +54,45 @@ public abstract class User {
         }
         return null;
     }
+    public Commande trouverCommande(int id) {
+        for (Commande c : commandes)
+            if (c.getId() == id)
+                return c;
+        return null;
+    }
     public ArrayList<Commande> getCommandes() {
         return new ArrayList<>(commandes);
     }
+    public void annulerCommande(Commande c) {
+        this.commandes.remove(c);
+        save();
+    }
     public abstract void ajouterCommande(Commande c);
+    public String formatSaveCommande() {
+        if (commandes.isEmpty())
+            return "";
+        StringJoiner sj = new StringJoiner(",");
+        for(Commande c : commandes)
+            sj.add(String.valueOf(c.getId()));
+        return sj.toString();
+    }
+    public String formatSaveBillet() {
+        if (billets.isEmpty())
+            return "";
+        StringJoiner sj = new StringJoiner(",");
+        for(Billet b : billets)
+            sj.add(String.valueOf(b.id));
+        return sj.toString();
+    }
+    public String formatSaveNotifications() {
+        if (notifications.isEmpty())
+            return "";
+        StringJoiner sj = new StringJoiner("\n");
+        for(Notification n : notifications)
+            sj.add(n.saveFormat());
+        return sj.toString();
+    }
+
 
     public String getUsername() {
         return username;
@@ -77,9 +113,8 @@ public abstract class User {
     public void setAddress(String address) {
         this.address = address;
     }
-    public abstract void saveNotifications();
     public void addNotifications(Notification n) {
         this.notifications.push(n);
-        saveNotifications();
+        save();
     }
 }

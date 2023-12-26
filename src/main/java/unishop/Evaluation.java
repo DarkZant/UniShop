@@ -1,28 +1,35 @@
 package unishop;
 
+import java.util.ArrayList;
+import java.util.StringJoiner;
+
 public class Evaluation {
     final String nomAcheteur;
     final int note;
     private final String commentaire;
-    private int likes;
+    private ArrayList<String> likes;
     private boolean estInapropprie;
 
-    public Evaluation(String nomAcheteur, int note, String commentaire, int likes, boolean estInapropprie) {
+    public Evaluation(String nomAcheteur, int note, String commentaire, boolean estInapropprie,
+                      ArrayList<String> likes) {
         this.nomAcheteur = nomAcheteur;
         this.note = note;
         this.commentaire = commentaire;
-        this.likes = likes;
         this.estInapropprie = estInapropprie;
+        this.likes = new ArrayList<>(likes);
     }
     public String getSaveFormatProduit() {
-        return nomAcheteur + "," + note + "," + commentaire + "," + likes + "," + estInapropprie;
+        StringJoiner sj = new StringJoiner(",");
+        sj.add(nomAcheteur);
+        sj.add(String.valueOf(note));
+        sj.add(commentaire);
+        sj.add(String.valueOf(estInapropprie));
+        for (String u : likes)
+            sj.add(u);
+        return sj.toString();
     }
-    public String getSaveFormatAcheteur() {
-        return note + "," + commentaire + "," + likes + "," + estInapropprie;
-    }
-
     public int getLikes() {
-        return likes;
+        return likes.size();
     }
 
     public String getDisplayFormat() {
@@ -31,8 +38,11 @@ public class Evaluation {
     }
 
     // TEST
-    public void ajouterLike() {
-        ++likes;
+    public boolean ajouterLike(String user) {
+        if (likes.contains(user))
+            return false;
+        likes.add(user);
+        return true;
     }
 
     // TEST

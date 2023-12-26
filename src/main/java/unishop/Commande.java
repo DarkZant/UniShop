@@ -46,16 +46,36 @@ public class Commande {
     public boolean estEnProduction() {return etat == 0;}
     public boolean estEnLivraison() {return etat == 1;}
     public boolean estLivre() {return etat == 2;}
+    public short mettreEnLivraison() {
+        if (this.estEnProduction()) {
+            ++this.etat;
+            save();
+            return 0;
+        }
+        else if (estEnLivraison())
+            return 1;
+        else
+            return 2;
+    }
     public short confirmerLivraison() {
         if (this.estEnLivraison()) {
             ++this.etat;
             this.reception = Main.obtenirTempsEnSecondes();
+            save();
             return 0;
         }
         else if (estLivre())
             return 2;
         else
             return 1;
+    }
+    public ArrayList<String> getRevendeurs() {
+        ArrayList<String> revs = new ArrayList<>();
+        for (Produit p : produits) {
+            if (!revs.contains(p.nomReven))
+                revs.add(p.nomReven);
+        }
+        return revs;
     }
     public void addPastInfo(int id, String date, String adresse, long reception) {
         this.id = id;
@@ -70,17 +90,17 @@ public class Commande {
         this.produits.add(p);
         this.coutTotal = Main.arrondirPrix(this.coutTotal + p.prix);
         this.pointsTotal += p.getPoints();
-        save();
+        savePanier();
     }
     public void addProduitEchange(Produit p) {
         this.produits.add(p);
-        save();
+        savePanier();
     }
     public void removeProduit(Produit p) {
         this.produits.remove(p);
         this.coutTotal = Main.arrondirPrix(this.coutTotal - p.prix);
         this.pointsTotal -= p.getPoints();
-        save();
+        savePanier();
     }
     public String afficher() {
         StringJoiner sj = new StringJoiner("\n");
@@ -89,7 +109,7 @@ public class Commande {
             sj.add(p.titre +  "; " + p.prix + "$; " + p.getPoints() + " points");
         return sj.toString();
     }
-    public Commande passerCommande(String path, String adresse) throws IOException {
+    public Commande passerCommande(String adresse) throws IOException {
         String[] ids = Main.lireFichierEnEntier(Main.IDS);
         String[] fs = ids[0].split(",");
         id = Integer.parseInt(fs[0]);
@@ -105,8 +125,9 @@ public class Commande {
             p.setUniqueId(produitID);
             ++produitID;
         }
+        this.adresse = adresse;
         Main.ecrireFichierEntier(Main.IDS, (id + 1) + "," + produitID);
-        Main.ecrireFichierEntier(path + "/" + id + Main.CSV, sj.toString());
+        Main.ecrireFichierEntier(Main.COMMANDES_PATH + id + Main.CSV, sj.toString());
         return this;
     }
     public String formatSaveRevendeur() {
@@ -118,7 +139,7 @@ public class Commande {
             sj.add(p.titre + "," + p.getId());
         return sj.toString();
     }
-    public void save(){
+    public void savePanier(){
         String path = Main.ACHETEURS_PATH + Main.getConnectedUsername() + "/Panier.csv";
         StringJoiner sj = new StringJoiner("\n");
         sj.add(coutTotal + "," + pointsTotal);
@@ -126,7 +147,7 @@ public class Commande {
             sj.add(p.titre);
         Main.ecrireFichierEntier(path, sj.toString());
     }
-    public void saveAfter(String userPath) {
+    public void save() {
         StringJoiner sj = new StringJoiner("\n");
         String[] base = new String[] {String.valueOf(id), date, String.valueOf(etat), String.valueOf(coutTotal),
                 String.valueOf(pointsTotal), adresse, String.valueOf(reception)};
@@ -134,13 +155,13 @@ public class Commande {
         for(Produit p : this.produits) {
             sj.add(p.titre + "," + p.getId());
         }
-        Main.ecrireFichierEntier(userPath + id + Main.CSV, sj.toString());
+        Main.ecrireFichierEntier(Main.COMMANDES_PATH + id + Main.CSV, sj.toString());
     }
     public void vider() {
         pointsTotal = 0;
         coutTotal = 0;
         produits.clear();
-        save();
+        savePanier();
     }
     public Produit getChoixProduit(boolean menuOption) {
         System.out.println("\nChoisissez un produit: ");

@@ -88,15 +88,10 @@ public class ControleurRevendeur {
             System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
 
             // TODO NOTIF
-            List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
-            for ( String a : acheteurs){
+            for (String a : revendeur.getFollowers()){
                 Acheteur acheteur = initialiserAcheteur(a);
-                for (String rList : acheteur.getRevendeursLikes() ){
-                    if (rList == revendeur.getUsername()){
-                        Notification notifRev = new Notification(1, a, revendeur.getUsername(), p.titre, 0);
-                        acheteur.addNotifications(notifRev);
-                }
-                }
+                Notification notifRev = new Notification(1, a, revendeur.getUsername(), p.titre, 0);
+                acheteur.addNotifications(notifRev);
             }
         }
         catch (IOException e) {
@@ -168,7 +163,33 @@ public class ControleurRevendeur {
         return new CBureau(marque, modele, sousCat);
     }
     static void gererCommandes() {
-        System.out.println("\nTODO");
+        ArrayList<Commande> cmds = revendeur.getCommandes();
+        if (cmds.isEmpty()) {
+            System.out.println("\nVous n'avez aucunes commandes!");
+            return;
+        }
+        System.out.println("\nChoisissez une commande: ");
+        String[] cs = new String[cmds.size() + 1];
+        for (int i = 0; i < cmds.size(); ++i) {
+            cs[i] = cmds.get(i).getMenuDisplay();
+        }
+        cs[cmds.size()] = "Retourner au menu";
+        choix = selectionChoix(cs);
+        if (choix == cs.length)
+            return;
+        Commande cmd = cmds.get(choix - 1);
+        System.out.println("\nCommande #" + cmd.getId());
+        System.out.println(cmd.afficher());
+        System.out.println("Votre commande est " + cmd.getEtat() + ".");
+        System.out.println("\nChoisissez une action: ");
+        choix = selectionChoix(new String[]{"Changer l'état de la commande",  "Retourner au menu"});
+        if (choix == 1) {
+            switch (cmd.confirmerLivraison()) {
+                case 0 -> System.out.println("\nL'état de votre commande a été changé avec succès!");
+                case 1 -> System.out.println("\nVotre commande est déjà en livraison!");
+                case 2 -> System.out.println("\nLa commande a déjà été livrée à l'acheteur!");
+            }
+        }
     }
     static void gererBillets() {
         ArrayList<Billet> ba = revendeur.getBillets();
@@ -200,14 +221,10 @@ public class ControleurRevendeur {
                         String solution = br.readLine();
                         b.setProbRev(solution);
                         Acheteur a = initialiserAcheteur(b.nomAche);
-                        a.trouverBillet(b.id).setProbRev(solution);
-                        a.save();
-                        revendeur.save();
-                        System.out.println("\nVous avez ajouté une solution au billet!");
                         //TODO NOTIF
-
-                        Notification notifRev = new Notification(5, a.getUsername(), revendeur.getUsername(), b.produitInitial, 0);
-                        a.addNotifications(notifRev);
+                        a.addNotifications(new Notification(5, a.getUsername(), revendeur.getUsername(),
+                                b.produitInitial, 0));
+                        System.out.println("\nVous avez ajouté une solution au billet!");
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -219,15 +236,7 @@ public class ControleurRevendeur {
             }
             else if (choix == 2) {
                 if (b.comfirmerLivraisonInitial()) {
-                    try {
-                        Acheteur a = initialiserAcheteur(b.nomAche);
-                        a.trouverBillet(b.id).comfirmerLivraisonInitial();
-                        a.save();
-                        revendeur.save();
-                        System.out.println("\nVous avez confirmer la livraison du produit problématique à l'entrepôt!");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    System.out.println("\nVous avez confirmer la livraison du produit problématique à l'entrepôt!");
                 }
                 else
                     System.out.println("\nVous aviez déjà confirmé la réception du produit problématique pour ce " +
@@ -246,12 +255,15 @@ public class ControleurRevendeur {
             if (choix == 4)
                 return;
             Produit p = revendeur.getProduitAvecChoix();
+            if (p == null)
+                return;
             switch (choix) {
                 case 1 -> {
                     System.out.print("Entrez la quantité que vous voulez ajouter à l'inventaire: ");
                     try {
                         p.restocker(demanderIntPositif("une quantité"));
-                        System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre + " en inventaire!");
+                        System.out.println("\nVous avez maintenant " + p.getQuantite() + " " + p.titre +
+                                " en inventaire!");
                     } catch(IOException e) {
                         e.printStackTrace();
                     }
@@ -278,11 +290,20 @@ public class ControleurRevendeur {
                             try {
                                 int pts = demanderIntPositif("un nombre de points");
                                 while (pts > pointsMax || pts == 0) {
-                                    System.out.print("Vous avez entré un nombre de points invalide! Veuillez réessayer: ");
+                                    System.out.print("Vous avez entré un nombre de points invalide! " +
+                                            "Veuillez réessayer: ");
                                     pts = demanderIntPositif("un nombre de points");
                                 }
                                 p.changerPromotion((int)Math.floor(p.prix) + pts);
-                                System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts + " points!");
+                                // TODO NOTIF
+                                for (String a : revendeur.getFollowers()) {
+                                    Acheteur acheteur = initialiserAcheteur(a);
+                                    Notification notifRev = new Notification(2, a, revendeur.getUsername(),
+                                            p.titre, 0);
+                                    acheteur.addNotifications(notifRev);
+                                }
+                                System.out.println("\n" + p.titre + " a maintenant une promotion de " + pts +
+                                        " points!");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -301,18 +322,6 @@ public class ControleurRevendeur {
                             System.out.print("Entrer les liens vers les vidéos séparés par des virgules: ");
                             String[] vids = br.readLine().split(",");
                             p.ajouterVideos(vids);
-                        }
-
-                        // TODO NOTIF
-                        List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
-                        for ( String a : acheteurs){
-                            Acheteur acheteur = initialiserAcheteur(a);
-                            for (String rList : acheteur.getRevendeursLikes() ){
-                                if (rList == revendeur.getUsername()){
-                                    Notification notifRev = new Notification(2, a, revendeur.getUsername(), p.titre, 0);
-                                    acheteur.addNotifications(notifRev);
-                                }
-                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();

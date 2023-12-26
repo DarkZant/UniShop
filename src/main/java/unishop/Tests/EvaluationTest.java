@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import unishop.Evaluation;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EvaluationTest {
@@ -12,7 +14,11 @@ class EvaluationTest {
 
     @BeforeEach
     void setUp() {
-        evaluation = new Evaluation("Etienne", 3, "moyen", 6, false);
+        ArrayList<String> likes = new ArrayList<>();
+        likes.add("User1");
+        likes.add("User2");
+        evaluation = new Evaluation("Etienne", 3, "moyen", false,
+                likes);
     }
 
     @Test
@@ -29,7 +35,7 @@ class EvaluationTest {
 
     @Test
     void ajouterLike() {
-        evaluation.ajouterLike();
-        assertEquals(7, evaluation.getLikes());
+        evaluation.ajouterLike("Test");
+        assertEquals(3, evaluation.getLikes());
     }
 }
