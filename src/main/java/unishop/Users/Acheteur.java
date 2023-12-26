@@ -32,6 +32,10 @@ public class Acheteur extends User implements Comparable<Acheteur>{
         this.panier = panier;
     }
 
+    public int getPoints() {
+        return this.points;
+    }
+
     @Override
     public boolean isAcheteur() {
         return true;

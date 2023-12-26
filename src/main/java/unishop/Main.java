@@ -388,9 +388,11 @@ public class Main {
     public static long obtenirTempsEnSecondes() {
         return System.currentTimeMillis() / 1000;
     }
+
     public static String[] lireFichierEnEntier(String path) throws IOException {
         return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8).toArray(new String[0]);
     }
+
     public static void ecrireFichierEntier(String path, String toWrite) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(path));
