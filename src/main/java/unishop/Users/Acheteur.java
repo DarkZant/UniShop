@@ -117,4 +117,6 @@ public class Acheteur extends User implements Comparable<Acheteur>{
             return -1;
         return 0;
     }
+
+    public int getPoints() {return points;}
 }
