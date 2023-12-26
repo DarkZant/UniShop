@@ -7,6 +7,7 @@ import unishop.Users.Revendeur;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static unishop.Main.*;
@@ -500,7 +501,6 @@ public class ControleurAcheteur {
             p.addEvaluation(e);
             System.out.println("\nVotre évaluation a été écrite avec succès!");
 
-            //TODO NOTIF
             Notification notif = new Notification(7, acheteur.getUsername(), p.nomReven, p.titre, -1);
             Revendeur r = initialiserRevendeur(p.nomReven);
             r.addNotifications(notif);
@@ -512,7 +512,96 @@ public class ControleurAcheteur {
     static void changerInformations() {
         System.out.println("\nTODO");
     }
-    static void gererAcheteursSuivis() { System.out.println("\nTODO"); }
+    static void gererAcheteursSuivis() {
+        System.out.println("\nQue Voulez-vous faire ?");
+        choix = selectionChoix(new String[]{"Suivre un acheteur", "Se comparer avec les acheteurs suivis",
+                "Retrouner au menu principal"});
+        switch (choix) {
+            case 1 -> {
+                while (true) {
+                    System.out.println("\nEntrez le nom de l'acheteur?");
+                    try {
+                        ArrayList<String> acheteurSelect = new ArrayList<>();
+                        List<String> acheteurs = fichiersDansDossier(ACHETEURS_PATH);
+                        String demandeUtilisateur = "";
+                        System.out.print("Entrez votre recherche: ");
+                        demandeUtilisateur = br.readLine();
+                        for (String a : acheteurs){
+                            if (a.contains(demandeUtilisateur));
+                            acheteurSelect.add(a);
+                        }
+
+                        if (acheteurSelect.isEmpty()) {
+                            System.out.println("\nAucun résultat pour cette recherche. Veuillez réessayer.");
+                            continue;
+                        }
+                        acheteurSelect.add("Faire une nouvelle recherche");
+                        acheteurSelect.add("Retourner au menu acheteur");
+                        while (true) {
+                            System.out.println("\nChoisissez un acheteur : ");
+                            choix = selectionChoix(acheteurSelect.toArray());
+                            if (choix == acheteurSelect.size() - 1)
+                                break;
+                            else if (choix == acheteurSelect.size())
+                                return;
+                            Acheteur a = initialiserAcheteur(acheteurSelect.get(choix - 1));
+                            System.out.println(a.afficherMetriques());
+                            System.out.println("\nQue voulez-vous faire ensuite?");
+                            choix = selectionChoix(new String[]{"Suivre l'acheteur", "Retourner au résultat de la recherche"});
+                            if (choix == 1) {
+                                for (String ach : acheteur.getFollowers()){
+                                    if (ach == a.getUsername()){
+                                        System.out.println("Vous suivez déjà cet acheteur.");
+                                        return;
+                                    }
+                                }
+                                acheteur.suivre(a.getUsername());
+                                System.out.println("\nFélicitations! Vous suivez maintenant l'acheteur.");
+                                Notification notifRev = new Notification(0, acheteur.getUsername(), a.getUsername(),
+                                        "", 0);
+                                Acheteur ache = initialiserAcheteur(a.getUsername());
+                                ache.addNotifications(notifRev);
+                                for (String achet : acheteur.getSuivis()){
+                                    if (achet == a.getUsername()){
+                                        a.ajouterPoints(5);
+                                        acheteur.ajouterPoints(5);
+                                    }
+                                }
+                            }
+                            else
+                                    System.out.println("\nVous suivez déjà cet acheteur.");
+                            }
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+                case 2 -> {
+
+                    try {
+                        ArrayList<Acheteur> acheteurs = new ArrayList<>();
+                        for (String a : acheteur.getSuivis()) {
+                            acheteurs.add(initialiserAcheteur(a));
+                        }
+
+                        acheteurs.sort(Collections.reverseOrder());
+                        for (Acheteur a : acheteurs) {
+                            System.out.println(a.getUsername() + " a " + a.getPoints() + " points ");
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+            case 3 -> {
+                return;
+            }
+        }
+    }
     static void rechercherRevendeur() {
         while (true) {
             System.out.println("\nQuel type de recherche voulez-vous faire?");
