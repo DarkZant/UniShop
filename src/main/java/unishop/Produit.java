@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
+/**
+ * Cette classe représente un produit selon le nom du revendeur, le titre, la description, le prix, les points, la quantité, les images, les vidéos, la catégorie, les likes, les évaluations et la note moyenne.
+ */
 public class Produit {
 
     final String nomReven;
@@ -22,6 +25,21 @@ public class Produit {
     private float noteMoyenne;
     private int id;
 
+    /**
+     * Crée un produit selon le nom du revendeur, le titre, la description, le prix, les points, la quantité, les images, les vidéos, la catégorie, les likes, les évaluations et la note moyenne.
+     *
+     * @param nomReven  Le nom du revendeur du produit
+     * @param titre Le nom du produit
+     * @param description La description du produit
+     * @param prix Le prix du produit
+     * @param quantite La quantité de produit disponible
+     * @param points Le nombre de points
+     * @param images L'ensemble d'image connexes aux produits
+     * @param videos L'ensemble de vidéos  connexes aux produits
+     * @param categorie La catégorie du produit
+     * @param likes Les likes du produit
+     * @param evaluations Les évaluations du produit
+     */
     public Produit(String nomReven, String titre, String description, float prix, int quantite, int points,
                    String[] images, String[] videos, Categorie categorie, ArrayList<String> likes,
                    ArrayList<Evaluation> evaluations) {
@@ -38,7 +56,16 @@ public class Produit {
         this.evaluations = new ArrayList<>(evaluations);
         this.noteMoyenne = getNoteMoyenne();
     }
+
+    /**
+     * Cette méthode recense le nombre de likes obtenu par le produit
+     * @return le nombre de likes obtenu par le produit
+     */
     public int getPoints() {return this.points;}
+
+    /**
+     * Sauvegarde le produit
+     */
     public void save() {
         StringJoiner sj = new StringJoiner(",");
         sj.add(nomReven);
@@ -62,6 +89,11 @@ public class Produit {
             sj.add(e.getSaveFormatProduit());
         Main.ecrireFichierEntier(Main.PRODUITS_PATH + titre + Main.CSV, sj.toString());
     }
+
+    /**
+     * Obtenir le format long des informations qui caractérise l'évaluation
+     * @return le format long des informations qui caractérise l'évaluation
+     */
     public String getFormatDisplay() {
         StringJoiner sj = new StringJoiner("\n");
         sj.add(titre);
@@ -79,6 +111,11 @@ public class Produit {
             sj.add("Note moyenne: " + noteMoyenne);
         return sj.toString();
     }
+
+    /**
+     * Obtenir le format display des informations qui caractérise l'évaluation
+     * @return le format display des informations qui caractérise l'évaluation
+     */
     public String getQuickDisplay() {
         StringJoiner sj = new StringJoiner("; ");
         sj.add(titre);
@@ -89,18 +126,36 @@ public class Produit {
         return sj.toString();
     }
 
+    /**
+     * Cette méthode recense le Id du produit
+     * @return  Le Id du produit
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Cette méthode recense la quantité du produit
+     * @return  La quantité du produit
+     * @return
+     */
     public int getQuantite() {
         return quantite;
     }
 
+    /**
+     * Cette méthode modifie le Id du produit
+     * @param id  Le Id du produit
+     */
     public void setUniqueId(int id) {
         this.id = id;
     }
 
+    /**
+     * Cette méthode permet de liker un produit
+     * @param nomAcheteur Le nom de l'acheteur qui veut liker le produit
+     * @return un message qui confirme le statut de votre like
+     */
     // TEST
     public String liker(String nomAcheteur) {
         if (likes.contains(nomAcheteur))
@@ -109,12 +164,22 @@ public class Produit {
         save();
         return "Vous avez liké " + titre + "!";
     }
+
+    /**
+     * Cette méthode permet aux acheteurs d'ajouter une évaluation
+     *
+     * @param e L'évaluation qu'on aimerait ajouter
+     */
     public void addEvaluation(Evaluation e) {
         this.evaluations.add(e);
         this.noteMoyenne = getNoteMoyenne();
         save();
     }
 
+    /**
+     * Cette méthode calcule et recense la note moyenne du produit
+     * @return La note moyenne du produit
+     */
     public float getNoteMoyenne() {
         float n = 0;
         for (Evaluation e : evaluations) {
@@ -122,6 +187,11 @@ public class Produit {
         }
         return Main.arrondirPrix(n / evaluations.size());
     }
+
+    /**
+     * Cette méthode recense les évaluations d'un produit
+     * @return Les évaluations d'un produit
+     */
     public String getEvaluationsDisplay() {
         if (evaluations.isEmpty())
             return "Ce produit n'a aucune évaluation pour le moment.";
@@ -132,6 +202,11 @@ public class Produit {
             return sj.toString();
         }
     }
+
+    /**
+     * Cette
+     * @return
+     */
     public ArrayList<Evaluation> getEvaluations() {
         return new ArrayList<>(evaluations);
     }
