@@ -18,7 +18,7 @@ public class Notification {
     public String afficher(){
         String s = "";
         switch (type) {
-            case 0 -> s = "L'acheteur " + acheteur + "  suit votre profil!";
+            case 0 -> s = "L'acheteur " + acheteur + " suit votre profil!";
             case 1 -> s = "Le revendeur " + revendeur + " que vous avez liké offre nouveau produit: " + produit;
             case 2 -> {
                 if(produit.isEmpty())

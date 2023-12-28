@@ -85,7 +85,6 @@ public class ControleurRevendeur {
             revendeur.ajouterCatVendu(c.getCat());
         System.out.println("Votre nouveau produit " + titre + " a été ajouté avec succès!");
 
-        // TODO NOTIF
         for (String a : revendeur.getFollowers()){
             Acheteur acheteur = initialiserAcheteur(a);
             acheteur.addNotifications(new Notification(1, a, revendeur.getUsername(), p.getTitre(), 0));
@@ -175,8 +174,10 @@ public class ControleurRevendeur {
         if (cmd.estEnProduction()) {
             System.out.println("\nChoisissez une action: ");
             choix = selectionChoix(new String[]{"Changer l'état de la commande",  "Retourner au menu"});
-            if (choix == 1)
+            if (choix == 1) {
                 cmd.mettreEnLivraison();
+                System.out.println("\nLa commande #" + cmd.getId() + " est maintenant en livraison!");
+            }
         }
     }
     static void gererBillets() {
@@ -207,7 +208,6 @@ public class ControleurRevendeur {
                     System.out.print("Entrez votre solution: ");
                     String solution = demanderString();
                     b.setProbRev(solution);
-                    //TODO NOTIF
                     Acheteur a = initialiserAcheteur(b.nomAche);
                     a.addNotifications(new Notification(5, a.getUsername(), revendeur.getUsername(),
                             b.produitInitial, 0));
@@ -236,14 +236,17 @@ public class ControleurRevendeur {
             return;
         }
         while (true) {
+            Produit p = choisirProduit(revendeur.getProduits());
+            if (p == null)
+                return;
+            System.out.println(p.getFormatDisplay());
+            System.out.println("\n" + p.getEvaluationsDisplay());
             System.out.println("\nChoisir une option: ");
             choix = selectionChoix(new String[] {"Restocker un produit", "Gérer une promotion", "Ajouter des médias",
                     "Retourner au menu"});
             if (choix == 4)
                 return;
-            Produit p = choisirProduit(revendeur.getProduits());
-            if (p == null)
-                return;
+
             switch (choix) {
                 case 1 -> {
                     System.out.print("Entrez la quantité que vous voulez ajouter à l'inventaire: ");
@@ -277,7 +280,6 @@ public class ControleurRevendeur {
                                 pts = demanderIntPositif("un nombre de points");
                             }
                             p.changerPromotion((int)Math.floor(p.getPrix()) + pts);
-                            // TODO NOTIF
                             for (String a : revendeur.getFollowers()) {
                                 Acheteur acheteur = initialiserAcheteur(a);
                                 acheteur.addNotifications(new Notification(2, a, revendeur.getUsername(),

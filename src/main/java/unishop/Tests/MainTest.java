@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import unishop.Main;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -38,7 +37,7 @@ class MainTest {
     }
 
     @Test
-    public void demanderIntPositif() throws IOException {
+    public void demanderIntPositif()  {
         String demande = "entier";
 
         // Input Valide
@@ -62,7 +61,7 @@ class MainTest {
     }
 
     @Test
-    public void demanderLong() throws IOException {
+    public void demanderLong()  {
         String demande = "entier";
 
         // Input Valide
@@ -86,7 +85,7 @@ class MainTest {
     }
 
     @Test
-    public void demanderFloat() throws IOException {
+    public void demanderFloat()  {
         String demande = "entier";
 
         // Input Valide

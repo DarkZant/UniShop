@@ -70,7 +70,10 @@ class AcheteurTest {
     void afficherMetriques() {
         String resultat = javier.afficherMetriques();
 
-        assertEquals("\nNombre de points: 100\nNombre total de commandes effectuées: 0" +
-                "\nNombre de followers: 0", resultat);
+        assertEquals("""
+
+                Nombre de points: 100
+                Nombre total de commandes effectuées: 0
+                Nombre de followers: 0""", resultat);
     }
 }

@@ -313,7 +313,7 @@ public class ControleurAcheteur {
                         if (produitRemplacement == null)
                             continue;
                         b = new Billet(p.getId(), acheteur.getUsername(), p.getTitre(), a, false, false,
-                                produitRemplacement.getTitre(), "", false);
+                               "", produitRemplacement.getTitre(), false);
                         float differencePrix = arrondirPrix(produitRemplacement.getPrix() - p.getPrix());
                         System.out.println("La différence de prix est de " + differencePrix + "$.");
                         Commande echange = new Commande((short)0, differencePrix, 0);
@@ -326,7 +326,6 @@ public class ControleurAcheteur {
                     b.save();
                     acheteur.addBillet(b);
                     r.addBillet(b);
-                    //TODO NOTIF
                     Notification notifRev = new Notification(8, acheteur.getUsername(), p.getNomReven(),
                             p.getTitre(), -1);
                     Revendeur rev = initialiserRevendeur(p.getNomReven());
@@ -416,7 +415,6 @@ public class ControleurAcheteur {
                 acheteur.ajouterCommande(c.copy());
 
                 ArrayList<String> revens = new ArrayList<>();
-                //TODO NOTIF
                 for (Produit p : c.getProduits()) {
                     Revendeur r = initialiserRevendeur(p.getNomReven());
                     r.ajouterVente(p.getPrix());
