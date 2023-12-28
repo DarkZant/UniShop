@@ -18,7 +18,7 @@ public class ControleurRevendeur {
         while (true) {
             System.out.println("\nVoici le menu Revendeur:");
             choix = selectionChoix(new String[]{"Offrir un nouveau produit", "Accéder aux commandes", "Voir les billets",
-                    "Modifier un produit", "Changer les informations du profil", "Afficher les métriques",
+                    "Gérer les produits", "Changer les informations du profil", "Afficher les métriques",
                     "Voir les notifications", "Se déconnecter"});
             switch (choix) {
                 case 1 -> offrirProduit();
