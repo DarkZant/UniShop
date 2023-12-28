@@ -5,14 +5,23 @@ import unishop.Users.Acheteur;
 import unishop.Users.Revendeur;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static unishop.Main.*;
 
+/**
+ * Cette méthode émule les contrôles des revendeurs
+ */
 public class ControleurRevendeur {
     private static short choix;
     private static Revendeur revendeur;
+
+    /**
+     * Cette méthode émule le menu d'un revendeur
+     * @param r Le revendeur dont on aimerait émuler le menu
+     */
     static void menuRevendeur(Revendeur r) {
         revendeur = r;
         while (true) {
@@ -32,7 +41,9 @@ public class ControleurRevendeur {
             }
         }
     }
-
+    /**
+     * Cette méthode permet au revendeur de offrir un produit
+     */
     static void offrirProduit() {
         System.out.println("\nVeuillez remplir les informations concernant votre produit.");
         System.out.println("Commencez par choisir une catégorie:");
@@ -90,6 +101,11 @@ public class ControleurRevendeur {
             acheteur.addNotifications(new Notification(1, a, revendeur.getUsername(), p.getTitre(), 0));
         }
     }
+    /**
+     * Cette méthode permet aux revendeurs d'offrir un livre
+     * @return Le livre que l'on souhaite offrir
+     * @throws IOException Lors qu'une des informations n'es pas rentrée
+     */
     static Categorie offrirLivre() {
         System.out.println("Veuillez choisir le genre de votre livre:");
         String genre = CLivres.genres[selectionChoix(CLivres.genres) - 1];
@@ -108,6 +124,12 @@ public class ControleurRevendeur {
         return new CLivres(auteur, maison, genre, isbn, date, numEdition, numVolume);
 
     }
+
+    /**
+     * Cette méthode permet d'offrir une ressource
+     * @return  La ressource que l'on souhaite offrir
+     * @throws IOException Lors qu'une des informations n'es pas rentrée
+     */
     static Categorie offrirRessource() {
         System.out.println("Est-ce un produit en ligne ou imprimé?");
         String type = CRessources.types[selectionChoix(CRessources.types) - 1];
@@ -123,6 +145,11 @@ public class ControleurRevendeur {
         int numEdition = demanderIntPositif("un numéro d'édition");
         return new CRessources(auteur, organisation, type, isbn, date, numEdition);
     }
+    /**
+     * Cette méthode permet d'offrir un produit de papeterie
+     * @return  Un produit de papeterie que l'on souhaite offrir
+     * @throws IOException Lors qu'une des informations n'es pas rentrée
+     */
     static Categorie offrirPapeterie() {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CPapeterie.sousCats[selectionChoix(CPapeterie.sousCats) - 1];
@@ -132,6 +159,11 @@ public class ControleurRevendeur {
         String modele = demanderString();
         return new CPapeterie(marque, modele, sousCat);
     }
+    /**
+     * Cette méthode permet de offrir un produit informatique
+     * @return  Le produit informatique que l'on souhaite offrir
+     * @throws IOException Lors qu'une des informations n'es pas rentrée
+     */
     static Categorie offrirInfo() {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CInformatique.sousCats[selectionChoix(CInformatique.sousCats) - 1];
@@ -143,6 +175,11 @@ public class ControleurRevendeur {
         String date = demanderString();
         return new CInformatique(marque, modele, sousCat, date);
     }
+    /**
+     * Cette méthode permet de offrir un produit de bureau
+     * @return  Le produit de bureau que l'on souhaite offrir
+     * @throws IOException Lors qu'une des informations n'es pas rentrée
+     */
     static Categorie offrirBureau() {
         System.out.println("Veuillez choisir une sous-catégorie: ");
         String sousCat = CBureau.sousCats[selectionChoix(CBureau.sousCats) - 1];
@@ -152,6 +189,9 @@ public class ControleurRevendeur {
         String modele = demanderString();
         return new CBureau(marque, modele, sousCat);
     }
+    /**
+     * Cette méthode permet aux revendeurs  de gérer leurs commandes
+     */
     static void gererCommandes() {
         ArrayList<Commande> cmds = revendeur.getCommandes();
         if (cmds.isEmpty()) {
@@ -180,6 +220,10 @@ public class ControleurRevendeur {
             }
         }
     }
+
+    /**
+     * Cette méthode permet aux revendeurs de gérer leurs billets
+     */
     static void gererBillets() {
         ArrayList<Billet> ba = revendeur.getBillets();
         if (ba.isEmpty()) {
@@ -230,6 +274,10 @@ public class ControleurRevendeur {
         }
 
     }
+
+    /**
+     * Cette méthode permet aux revendeurs de modifier un produit
+     */
     static void modifierProduit () {
         if (revendeur.nbProduitsOfferts() == 0) {
             System.out.println("\nVous n'avez aucun produit en vente!");
@@ -316,6 +364,10 @@ public class ControleurRevendeur {
             }
         }
     }
+
+    /**
+     * Cette méthode permet aux revendeurs de changer les informations de leur profil
+     */
     static void changerInformations() {
         System.out.println("\nChoississez ce que vous voulez modifier: ");
         choix = selectionChoix(new String[]{"Mot de passe", "Adresse courriel", "Téléphone", "Adresse",

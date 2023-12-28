@@ -9,9 +9,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static unishop.Main.*;
-
+/**
+ * Cette classe émule le contrôle des invités
+ */
 public class ControleurInvite {
     static short choix;
+
+    /**
+     * Cette méthode émule le menu des invité
+     */
     static void menuInvite(){
         while (true) {
             System.out.println("\nVoici le menu Invité:");
@@ -27,6 +33,10 @@ public class ControleurInvite {
             }
         }
     }
+
+    /**
+     * Cette méthode trouve l'acheteur
+     */
     static void trouverAcheteur() {
         while (true) {
             System.out.print("\nEntrer le nom d'un acheteur (N'entrez rien pour la liste de tous les acheteurs): ");
@@ -78,6 +88,9 @@ public class ControleurInvite {
 
         }
     }
+    /**
+     * Cette méthode trouve les produits
+     */
     static void trouverProduits() {
         while (true) {
             System.out.println("\nQuel type de recherche voulez-vous faire?");
@@ -202,6 +215,9 @@ public class ControleurInvite {
             }
         }
     }
+    /**
+     * Cette méthode trouve les revendeurs
+     */
     static void trouverRevendeur() {
         while (true) {
             System.out.println("\nQuel type de recherche voulez-vous faire?");

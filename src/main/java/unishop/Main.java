@@ -13,7 +13,9 @@ import java.util.*;
 import static unishop.ControleurAcheteur.menuAcheteur;
 import static unishop.ControleurInvite.menuInvite;
 import static unishop.ControleurRevendeur.menuRevendeur;
-
+/**
+ * Cette classe émule et structure le fonctionnement de Unishop
+ */
 public class Main {
 
     public final static String DATABASE_PATH = "Database/";
@@ -32,11 +34,17 @@ public class Main {
 
     private static User connectedUser = null;
     private static short choix;
-
+    /**
+     * Cette méthode permet de simuler le fonctionnement d'Unishop
+     * @param args Les instructions à passer à Unishop
+     */
     public static void main(String[] args) {
         menuPrincipal();
         System.out.println("\nAu plaisir de vous revoir!");
     }
+    /**
+     * Cette méthode émule le menu principal
+     */
     static void menuPrincipal(){
         while (true) {
             System.out.println("\nBienvenue sur UniShop!");
@@ -62,6 +70,10 @@ public class Main {
         }
     }
 
+    /**
+     * Cette méthode simule un choix oui ou non
+     * @return True si oui et False sinon
+     */
     public static boolean choixOuiNon() {
         System.out.println("1. Oui\n2. Non");
         while (true) {
@@ -79,6 +91,12 @@ public class Main {
             }
         }
     }
+
+    /**
+     * Cette méthode émule la sélection d'un choix
+     * @param choix  Les diverses options que l'on offre
+     * @return Le choix qui a été éffectué
+     */
     public static short selectionChoix(Object[] choix) {
         int nbChoix = choix.length;
         for (int i = 0; i < nbChoix; ++i) {
@@ -99,7 +117,9 @@ public class Main {
             }
         }
     }
-
+    /**
+     * Cette méthode ermet au utilisateur de se créer un compte
+     */
     static void creerCompte() {
         System.out.println("\nChoisissez le type de compte à créer:");
         choix = selectionChoix(new String[]{"Acheteur", "Revendeur", "Revenir au menu principal"});
@@ -150,6 +170,11 @@ public class Main {
                 System.out.println("Erreur lors de la création du dossier. Veuillez recommencer");
         }
     }
+
+    /**
+     * Cette méthode permet aux utilisateurs de se connecter
+     * @return le compte auquel l'utilisateur se connecte
+     */
     static User connecterUser() {
         System.out.println("\nConnection (Ne rien rentrer retourne au menu principal): ");
         String categorie = "";
@@ -200,6 +225,12 @@ public class Main {
             return initialiserRevendeur(username);
         }
     }
+
+    /**
+     * Cette méthode permet d'initialiser un acheteur
+     * @param username L'username de l'acheteur
+     * @return un acheteur
+     */
     public static Acheteur initialiserAcheteur(String username) {
         String path = ACHETEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ INFOS);
@@ -232,6 +263,11 @@ public class Main {
 
 
     }
+
+    /** Cette méthode permet d'initialiser un revendeur
+     * @param username  L'username du revendeur
+     * @return Le revendeur
+     */
     static Revendeur initialiserRevendeur(String username) {
         String path = REVENDEURS_PATH + username + "/";
         String[] data = lireFichierEnEntier( path+ INFOS);
@@ -258,6 +294,11 @@ public class Main {
         return new Revendeur(username, infos[0], infos[1], Long.parseLong(infos[2]), infos[3],
                 Float.parseFloat(infos[4]), Integer.parseInt(infos[5]), followers, bis, ps, cmds, cats, notifs);
     }
+    /** Cette méthode permet d'initialiser un produit
+     * @param titreProduit Le nom du produit
+     * @return un nouveau produit
+     *
+     */
     static Produit initialiserProduit(String titreProduit) {
         String path = PRODUITS_PATH + titreProduit;
         if (!titreProduit.endsWith(CSV))
@@ -286,6 +327,12 @@ public class Main {
         return new Produit(f[0], f[1], f[2], Float.parseFloat(f[3]), Integer.parseInt(f[4]), Integer.parseInt(f[5]),
                 images, videos, c, likes, evals);
     }
+
+    /**
+     * Cette méthode permet d'initialiser une commande
+     * @param id L'id de la commande à initialiser
+     * @return La commande que l'on souhaite initialiser
+     */
     static Commande initialiserCommande(int id) {
         String[] lines = lireFichierEnEntier(COMMANDES_PATH + id + CSV);
         String[] fstLine = lines[0].split(",");
@@ -303,11 +350,20 @@ public class Main {
         }
         return c;
     }
+    /** Cette méthode permet d'initialiser un billet
+     * @param id L'id du billet
+     * @return L'objet billet
+     */
     static Billet initialiserBillet(int id) {
         String[] bs = lireFichierEnEntier(BILLETS_PATH + id + CSV)[0].split(",");
         return new Billet(Integer.parseInt(bs[0]), bs[1], bs[2], bs[3], Boolean.parseBoolean(bs[4]),
                 Boolean.parseBoolean(bs[5]) , bs[6], bs[7], Boolean.parseBoolean(bs[8]));
     }
+    /**
+     * Permet de demander un entier positif
+     * @param demande L'entier qu'on demande
+     * @return L'entier qu'on veut
+     */
     public static int demanderIntPositif(String demande) {
         int i;
         while (true) {
@@ -324,6 +380,11 @@ public class Main {
             }
         }
     }
+    /**
+     * Permet de demander un nombre  de type long
+     * @param demande la description du nombre  qu'on demande
+     * @return Le nombre qu'on veut
+     */
     public static long demanderLong(String demande) {
         long l;
         while (true) {
@@ -336,6 +397,11 @@ public class Main {
             }
         }
     }
+    /**
+     * Permet de demander un float
+     * @param demande La description du float  qu'on demande
+     * @return Le float  qu'on recoit
+     */
     public static float demanderFloat(String demande) {
         float prix;
         while (true) {
@@ -351,6 +417,11 @@ public class Main {
             }
         }
     }
+    /**
+     * Cette méthode permet de demander un string
+     * @return  Le string rentrer
+     */
+
     public static String demanderString() {
         try {
             return br.readLine();
@@ -359,15 +430,26 @@ public class Main {
             return "ERROR";
         }
     }
-
+    /**
+     * Permet d'arrondir un prix
+     * @param prix  Le prix que l'on souhaite arrondir
+     * @return Le prix suite à l'arrondie
+     */
     // TEST
     public static float arrondirPrix(float prix) {
         return Math.round((prix) * 100) / 100f;
     }
+    /**
+     * Permet le calcul du temps en seconde
+     * @return Le temps  en seconde
+     */
     public static long obtenirTempsEnSecondes() {
         return System.currentTimeMillis() / 1000;
     }
 
+    /** Permet lire un fichier entier
+     * @param path Endroit où l'on souhaite lire le fichier
+     */
     public static String[] lireFichierEnEntier(String path) {
         try {
             return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8).toArray(new String[0]);
@@ -376,7 +458,10 @@ public class Main {
             return new String[0];
         }
     }
-
+    /** Permet d'écrire un fichier entier
+     * @param path Endroit où l'on souhaite écrire le fichier
+     * @param toWrite Ce que l'on souhaite écrire dans le fichier
+     */
     public static void ecrireFichierEntier(String path, String toWrite) {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(path));
@@ -386,9 +471,19 @@ public class Main {
             e.printStackTrace();
         }
     }
+    /**
+     * Retournes les fichiers dans un certain dossier passé en argument
+     * @param path addresse du dossier à lire
+     * @return les fichiers dans le dossier
+     */
     static List<String> fichiersDansDossier(String path) {
         return Arrays.asList(Objects.requireNonNull(new File(path).list()));
     }
+    /**
+     * Crées une arraylist de string
+     * @param s Le string initial
+     * @return Le Arraylist
+     */
     public static ArrayList<String> iniArrayList(String s) {
         String[] tab = s.split(",");
         if (tab[0].isEmpty())
@@ -397,9 +492,18 @@ public class Main {
             return new ArrayList<>(Arrays.asList(tab));
 
     }
+
+    /**
+     * Cette méthode connecte un utilisateur
+     * @return L'utilisateur est conecté
+     */
     public static String getConnectedUsername() {
         return connectedUser.getUsername();
     }
+    /**
+     * Éfface un fichier
+     * @param path  le path du fichier à effacer
+     */
     public static void effacerFichier(String path) {
         File file = new File(path);
         File[] contents = file.listFiles();
@@ -411,6 +515,11 @@ public class Main {
         if (!file.delete())
             System.out.println("Fichier non effacé: " + file);
     }
+
+    /**
+     * Demander un courriel unique
+     * @return Le courriel
+     */
     public static String demanderCourrielUnique() {
         String courriel = demanderString();
         ArrayList<String> emails = iniArrayList(lireFichierEnEntier(EMAILS)[0]);
@@ -422,6 +531,12 @@ public class Main {
         ecrireFichierEntier(EMAILS, String.join(",", emails));
         return courriel;
     }
+
+    /**
+     * Cette méthode permet de choisir un produit
+     * @param produits L'arrayList des produits
+     * @return Un produit
+     */
     public static Produit choisirProduit(ArrayList<Produit> produits) {
         String[] s = new String[produits.size() + 1];
         int i = 0;

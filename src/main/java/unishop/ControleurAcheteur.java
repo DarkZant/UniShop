@@ -10,10 +10,17 @@ import java.util.Collections;
 import java.util.List;
 
 import static unishop.Main.*;
-
+/**
+ * Cette classe émule les commandes possibles par les acheteurs
+ */
 public class ControleurAcheteur {
     private static short choix;
     private static Acheteur acheteur;
+
+    /**
+     * Émule un menu pour pour l'acheteur passé en argument
+     * @param a L'acheteur pour lequel on veut émuler le menu
+     */
     static void menuAcheteur(Acheteur a)  {
         acheteur = a;
         while (true) {
@@ -44,6 +51,10 @@ public class ControleurAcheteur {
             }
         }
     }
+    /**
+     * Cette méthode éffectue la recherche d'un produit par un acheteur
+     * @return Les produits qui sont conformes à la recherche
+     */
     static short rechercherProduits() {
         System.out.println("\nQuel type de recherche voulez-vous faire?");
         ArrayList<String> pSelect = new ArrayList<>();
@@ -250,6 +261,10 @@ public class ControleurAcheteur {
             }
         }
     }
+
+    /**
+     * Cette méthode permet aux acheteurs de gérer leurs commandes
+     */
     static void gererCommandes() {
         ArrayList<Commande> cmds = acheteur.getCommandes();
         if (cmds.isEmpty()) {
@@ -372,6 +387,9 @@ public class ControleurAcheteur {
             }
         }
     }
+    /**
+     * Cette méthode permet aux acheteurs de visiter leur panier.
+     */
     static void allerAuPanier() {
         if (acheteur.panier.estVide()) {
             System.out.println("\nVotre panier est vide!");
@@ -432,6 +450,9 @@ public class ControleurAcheteur {
             }
         }
     }
+    /**
+     * Cette méthode permet aux acheteurs de gérer leurs billets
+     */
     static void gererBillets() {
         ArrayList<Billet> ba = acheteur.getBillets();
         if (ba.isEmpty()) {
@@ -466,6 +487,11 @@ public class ControleurAcheteur {
         }
 
     }
+
+    /**
+     * Cette méthode permet aux acheteurs d'écrire des évaluaations
+     * @param p Le produit que l'on souhaite évaluer
+     */
     static void ecrireEvaluation (Produit p) {
         System.out.println("\nÉvaluation du produit " + p.getTitre() + ":");
         System.out.print("Veuillez entrer une note entière entre 1 et 5: ");
@@ -484,6 +510,10 @@ public class ControleurAcheteur {
         Revendeur r = initialiserRevendeur(p.getNomReven());
         r.addNotifications(new Notification(7, acheteur.getUsername(), p.getNomReven(), p.getTitre(), -1));
     }
+
+    /**
+     * Cette méthode permet aux acheteurs de modifier les informations de leur profil
+     */
     static void changerInformations() {
         System.out.println("\nChoississez ce que vous voulez modifier: ");
         choix = selectionChoix(new String[]{"Mot de passe", "Adresse courriel", "Téléphone", "Adresse",
@@ -527,6 +557,9 @@ public class ControleurAcheteur {
             }
         }
     }
+    /**
+     *  Cette méthode permet de gérer les acheteurs suivis
+     */
     static void gererAcheteursSuivis() {
         System.out.println("\nQue voulez-vous faire ?");
         choix = selectionChoix(new String[]{"Chercher un acheteur à suivre",
@@ -580,6 +613,9 @@ public class ControleurAcheteur {
             }
         }
     }
+    /**
+     * Cette méthode permet aux revendeurs de rechercher un revendeur
+     */
     static void rechercherRevendeur() {
         while (true) {
             System.out.println("\nQuel type de recherche voulez-vous faire?");
@@ -663,6 +699,11 @@ public class ControleurAcheteur {
             }
         }
     }
+
+    /**
+     * Cette méthode permet aux acheteurs de suivre un autre acheteur
+     * @param nom
+     */
     static void suivreAcheteur(String nom) {
         switch (acheteur.suivre(nom)) {
             case 0 -> {
