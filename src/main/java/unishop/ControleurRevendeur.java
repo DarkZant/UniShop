@@ -5,7 +5,6 @@ import unishop.Users.Acheteur;
 import unishop.Users.Revendeur;
 
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +103,6 @@ public class ControleurRevendeur {
     /**
      * Cette méthode permet aux revendeurs d'offrir un livre
      * @return Le livre que l'on souhaite offrir
-     * @throws IOException Lors qu'une des informations n'es pas rentrée
      */
     static Categorie offrirLivre() {
         System.out.println("Veuillez choisir le genre de votre livre:");
@@ -128,7 +126,6 @@ public class ControleurRevendeur {
     /**
      * Cette méthode permet d'offrir une ressource
      * @return  La ressource que l'on souhaite offrir
-     * @throws IOException Lors qu'une des informations n'es pas rentrée
      */
     static Categorie offrirRessource() {
         System.out.println("Est-ce un produit en ligne ou imprimé?");
@@ -148,7 +145,6 @@ public class ControleurRevendeur {
     /**
      * Cette méthode permet d'offrir un produit de papeterie
      * @return  Un produit de papeterie que l'on souhaite offrir
-     * @throws IOException Lors qu'une des informations n'es pas rentrée
      */
     static Categorie offrirPapeterie() {
         System.out.println("Veuillez choisir une sous-catégorie: ");
@@ -162,7 +158,6 @@ public class ControleurRevendeur {
     /**
      * Cette méthode permet de offrir un produit informatique
      * @return  Le produit informatique que l'on souhaite offrir
-     * @throws IOException Lors qu'une des informations n'es pas rentrée
      */
     static Categorie offrirInfo() {
         System.out.println("Veuillez choisir une sous-catégorie: ");
@@ -178,7 +173,6 @@ public class ControleurRevendeur {
     /**
      * Cette méthode permet de offrir un produit de bureau
      * @return  Le produit de bureau que l'on souhaite offrir
-     * @throws IOException Lors qu'une des informations n'es pas rentrée
      */
     static Categorie offrirBureau() {
         System.out.println("Veuillez choisir une sous-catégorie: ");

@@ -702,7 +702,7 @@ public class ControleurAcheteur {
 
     /**
      * Cette méthode permet aux acheteurs de suivre un autre acheteur
-     * @param nom
+     * @param nom Nom de l'acheteur
      */
     static void suivreAcheteur(String nom) {
         switch (acheteur.suivre(nom)) {

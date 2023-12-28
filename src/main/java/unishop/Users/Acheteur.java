@@ -108,6 +108,7 @@ public class Acheteur extends User implements Comparable<Acheteur>{
             return 0;
         }
     }
+
     public boolean aAcheteProduit(String nomProduit) {
         for(Commande c : commandes) {
             for(Produit p : c.getProduits()) {

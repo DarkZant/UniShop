@@ -2,7 +2,6 @@ package unishop;
 
 import static unishop.Main.*;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -141,8 +140,6 @@ public class Commande {
     public boolean estLivre() {return etat == 2;}
     /**
      * Met la commande est état de livraison
-     *
-     * @return 0 si la commande est en cours de livraison, 1 si elle était déja en cours de livraison et 2 si ce n'est pas le cas
      */
     public void mettreEnLivraison() {
         ++this.etat;
@@ -231,7 +228,6 @@ public class Commande {
      * Passe une commande
      * @param adresse Les informations de la commande
      * @return La  commande
-     * @throws IOException Si la commande n'est pas conforme
      */
     public Commande passerCommande(String nom, String adresse) {
         String[] ids = lireFichierEnEntier(IDS);
