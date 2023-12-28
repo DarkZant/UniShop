@@ -30,7 +30,7 @@ class AcheteurTest {
 
     @Test
     void suivre_ERREUR1() {
-        String acheteur = "javier";
+        String acheteur = "Test";
 
         short resultat = javier.suivre(acheteur);
 
@@ -73,6 +73,7 @@ class AcheteurTest {
         assertEquals("""
 
                 Nombre de points: 100
+                Nombre de produits commandés: 0
                 Nombre total de commandes effectuées: 0
                 Nombre de followers: 0""", resultat);
     }
