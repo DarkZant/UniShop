@@ -22,12 +22,6 @@ class EvaluationTest {
     }
 
     @Test
-    void isEqual() {
-        boolean resultat = evaluation.isEqual(evaluation);
-        assertTrue(resultat);
-    }
-
-    @Test
     void signaler() {
         boolean resultat = evaluation.signaler();
         assertTrue(resultat);
@@ -36,6 +30,6 @@ class EvaluationTest {
     @Test
     void ajouterLike() {
         evaluation.ajouterLike("Test");
-        assertEquals(3, evaluation.getLikes());
+        assertEquals(3, evaluation.getNbLikes());
     }
 }

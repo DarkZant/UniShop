@@ -1,6 +1,7 @@
 package unishop.Users;
 
 import unishop.*;
+import unishop.Produit;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -11,27 +12,39 @@ public class Acheteur extends User implements Comparable<Acheteur>{
     private String nom;
     private String prenom;
     private int points;
-    private final int likes;
-    final ArrayList<String> acheteursSuivis;
-    final ArrayList<String> suiveurs;
-    final ArrayList<String> revendeursLikes;
+    private final ArrayList<String> acheteursSuivis;
+    private final ArrayList<String> suiveurs;
+    private final ArrayList<String> revendeursLikes;
     public final Commande panier;
 
     public Acheteur(String u, String p, String em, long phone, String address, String nom,
-                    String prenom, int points, int likes, ArrayList<String> acheteursSuivis,
+                    String prenom, int points, ArrayList<String> acheteursSuivis,
                     ArrayList<String> revendeursLikes, ArrayList<Billet> b, Commande panier, ArrayList<Commande> cmds,
                     Stack<Notification> ns){
         super(u, p, em, phone, address, b, cmds, ns);
         this.nom = nom;
         this.prenom = prenom;
         this.points = points;
-        this.likes = likes;
         this.acheteursSuivis = new ArrayList<>(acheteursSuivis);
         this.revendeursLikes = new ArrayList<>(revendeursLikes);
         this.suiveurs = new ArrayList<>(); //Suiveurs en input
         this.panier = panier;
     }
+    public ArrayList<String> getFollowers() {
+        return new ArrayList<>(suiveurs);
+    }
+    public ArrayList<String> getSuivis() {
+        return new ArrayList<>(acheteursSuivis);
+    }
+    public int getPoints() {return points;}
 
+    private int getNbProduitsCommandes() {
+        int i = 0;
+        for (Commande c : commandes) {
+            i += c.getProduits().size();
+        }
+        return i;
+    }
     public void setNom (String nom) {
         this.nom = nom;
         save();
@@ -46,17 +59,12 @@ public class Acheteur extends User implements Comparable<Acheteur>{
     public boolean isAcheteur() {
         return true;
     }
-    public void ajouterCommande(Commande c) {
-        commandes.add(c);
-        points += c.getPointsTotal();
-        save();
-    }
 
     @Override
     public void save() {
         StringJoiner sj = new StringJoiner("\n");
         String[] infos = new String[] {this.password, this.email, String.valueOf(this.phone), this.address, nom,
-                prenom, String.valueOf(points), String.valueOf(likes)};
+                prenom, String.valueOf(points)};
         sj.add(String.join(",", infos));
         sj.add(String.join(",", acheteursSuivis));
         sj.add(String.join(",", revendeursLikes));
@@ -66,8 +74,30 @@ public class Acheteur extends User implements Comparable<Acheteur>{
         Main.ecrireFichierEntier(Main.ACHETEURS_PATH + this.username + "/Infos.csv", sj.toString());
     }
 
-    // TEST
-     public short suivre(String acheteur) {
+    @Override
+    public void ajouterCommande(Commande c) {
+        commandes.add(c);
+        points += c.getPointsTotal();
+        save();
+    }
+
+    @Override
+    public String afficherMetriques() {
+        return "\nNombre de points: " + points + "\nNombre de produits commandés: " + getNbProduitsCommandes() +
+                "\nNombre total de commandes effectuées: " + commandes.size() +
+                "\nNombre de followers: " + suiveurs.size();
+    }
+
+    @Override
+    public int compareTo(Acheteur a){
+        if (this.points > a.points)
+            return 1;
+        else if (this.points < a.points)
+            return -1;
+        return 0;
+    }
+
+    public short suivre(String acheteur) {
         if (this.username.equals(acheteur))
             return 2;
         else if (acheteursSuivis.contains(acheteur))
@@ -80,28 +110,26 @@ public class Acheteur extends User implements Comparable<Acheteur>{
     }
     public boolean aAcheteProduit(String nomProduit) {
         for(Commande c : commandes) {
-            for(String pt : c.getProduits()) {
-                if (nomProduit.equals(pt))
+            for(Produit p : c.getProduits()) {
+                if (nomProduit.equals(p.getTitre()))
                     return true;
             }
         }
         return false;
     }
-    public ArrayList<String> getFollowers() {
-        return new ArrayList<>(suiveurs);
-    }
-    public ArrayList<String> getSuivis() {
-        return new ArrayList<>(acheteursSuivis);
-    }
+
     public void ajouterPoints(int pts) {
         this.points += pts;
         save();
     }
+
     public int viderPoints() {
         int pts = this.points;
         this.points = 0;
+        save();
         return pts;
     }
+
     public boolean billetExiste(int id) {
         for (Billet b : this.billets){
             if (b.id == id)
@@ -109,21 +137,4 @@ public class Acheteur extends User implements Comparable<Acheteur>{
         }
         return false;
     }
-    // TEST
-    @Override
-    public String afficherMetriques() {
-        return "\nNombre de points: " + points + "\nNombre de produits commandés" +
-                "\nNombre total de commandes effectuées: " + commandes.size() +
-                "\nNombre de followers: " + suiveurs.size();
-    }
-    @Override
-    public int compareTo(Acheteur a){
-        if (this.points > a.points)
-            return 1;
-        else if (this.points < a.points)
-            return -1;
-        return 0;
-    }
-
-    public int getPoints() {return points;}
 }

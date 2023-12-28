@@ -45,9 +45,9 @@ public class ControleurInvite {
             aSelect.add("Retourner au menu");
             System.out.println("Sélectionnez une option: ");
             choix = selectionChoix(aSelect.toArray());
-            if (choix == aSelect.size() - 2)
+            if (choix == aSelect.size() - 1)
                 continue;
-            else if (choix == aSelect.size() - 1)
+            else if (choix == aSelect.size())
                 return;
             acheteur = initialiserAcheteur(aSelect.get(choix - 1));
             while (true) {
@@ -55,7 +55,7 @@ public class ControleurInvite {
                         acheteur.afficherMetriques());
                 System.out.println("\nQue voulez-vous faire ensuite?");
                 choix = selectionChoix(new String[] {"Voir les followers", "Voir les suivis",
-                        "Faire une autre recherche", "Retourner au menu principal"});
+                        "Faire une autre recherche", "Retourner au menu"});
                 if (choix == 3)
                     break;
                 else if (choix == 4)
@@ -73,7 +73,7 @@ public class ControleurInvite {
                 }
                 System.out.println("\nChoississez un acheteur: ");
                 choix = selectionChoix(aSelect.toArray());
-                acheteur = initialiserAcheteur(aSelect.get(choix));
+                acheteur = initialiserAcheteur(aSelect.get(choix - 1));
             }
 
         }
@@ -160,18 +160,18 @@ public class ControleurInvite {
                                 pSelect.add(produitPreview);
                         }
                         case 5 -> {
-                            if (Integer.parseInt(infos[5]) != 0)
+                            if (Integer.parseInt(infos[5]) > Math.floor(Float.parseFloat(infos[3])))
                                 pSelect.add(produitPreview);
                         }
                     }
                 }
             }
             if (pSelect.isEmpty()) {
-                System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
+                System.out.println("\nAucun résultat pour cette recherche. Veuillez réessayer.");
                 continue;
             }
             pSelect.add("Faire une nouvelle recherche");
-            pSelect.add("Retourner au menu principal");
+            pSelect.add("Retourner au menu");
             while (true) {
                 System.out.println("\nChoisissez un produit: ");
                 choix = selectionChoix(pSelect.toArray());
@@ -190,7 +190,7 @@ public class ControleurInvite {
                     switch (choix) {
                         case 1 -> System.out.println("\n" + p.getEvaluationsDisplay());
                         case 2 -> {
-                            ArrayList<String> ar = p.voirLikes();
+                            ArrayList<String> ar = p.getLikes();
                             String[] as = ar.toArray(new String[0]);
                             if (as.length == 1)
                                 System.out.println("\nCe produit n'a aucun likes.");
@@ -224,12 +224,12 @@ public class ControleurInvite {
 
                     }
                     case 2 -> {
-                        System.out.println("Choisissez un nom :");
+                        System.out.print("Entrez votre recherche: ");
                         demandeUtilisateur = demanderString();
 
                     }
                     case 3 -> {
-                        System.out.print("Choisissez une adresse ");
+                        System.out.print("Entrez une adresse: ");
                         demandeUtilisateur = demanderString();
                     }
                 }
@@ -237,7 +237,7 @@ public class ControleurInvite {
 
             for (String r : revendeurs) {
                 String[] contenu = lireFichierEnEntier(REVENDEURS_PATH + r + "/" + INFOS);
-                String adresse = contenu[0].split(",")[5];
+                String adresse = contenu[0].split(",")[3];
                 List<String> categories = Arrays.asList(contenu[2].split(","));
 
                 if (estRecherche) {
@@ -261,11 +261,11 @@ public class ControleurInvite {
                 }
             }
             if (revendeurSelect.isEmpty()) {
-                System.out.println("Aucun résultat pour cette recherche. Veuillez réessayer.");
-                return;
+                System.out.println("\nAucun résultat pour cette recherche. Veuillez réessayer.");
+                continue;
             }
             revendeurSelect.add("Faire une nouvelle recherche");
-            revendeurSelect.add("Retourner au menu acheteur");
+            revendeurSelect.add("Retourner au menu");
             while (true) {
                 System.out.println("\nChoisissez un revendeur: ");
                 choix = selectionChoix(revendeurSelect.toArray());

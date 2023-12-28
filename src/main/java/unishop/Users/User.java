@@ -28,11 +28,44 @@ public abstract class User {
         this.notifications = ns;
 
     }
+    public String getUsername() {
+        return username;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+    public ArrayList<Billet> getBillets() {
+        return new ArrayList<>(billets);
+    }
+    public ArrayList<Commande> getCommandes() {
+        return new ArrayList<>(commandes);
+    }
+    public void setEmail(String email) {
+        this.email = email;
+        save();
+    }
+
+    public void setPhone(long phone) {
+        this.phone = phone;
+        save();
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+        save();
+    }
+
+    public void setPassword (String password) {
+        this.password = password;
+        save();
+    }
     public abstract void save();
     public abstract boolean isAcheteur();
     public abstract String afficherMetriques();
-    public void addBillet(Billet b) {
-        this.billets.add(b);
+    public abstract void ajouterCommande(Commande c);
+    public void addNotifications(Notification n) {
+        this.notifications.push(n);
         save();
     }
     public String voirNotifications() {
@@ -44,23 +77,22 @@ public abstract class User {
         save();
         return sj.toString();
     }
-    public ArrayList<Billet> getBillets() {
-        return new ArrayList<>(billets);
+    public void addBillet(Billet b) {
+        this.billets.add(b);
+        save();
     }
+
     public Commande trouverCommande(int id) {
         for (Commande c : commandes)
             if (c.getId() == id)
                 return c;
         return null;
     }
-    public ArrayList<Commande> getCommandes() {
-        return new ArrayList<>(commandes);
-    }
+
     public void annulerCommande(Commande c) {
         this.commandes.remove(c);
         save();
     }
-    public abstract void ajouterCommande(Commande c);
     public String formatSaveCommande() {
         if (commandes.isEmpty())
             return "";
@@ -84,39 +116,5 @@ public abstract class User {
         for(Notification n : notifications)
             sj.add(n.saveFormat());
         return sj.toString();
-    }
-
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-        save();
-    }
-
-    public void setPhone(long phone) {
-        this.phone = phone;
-        save();
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-        save();
-    }
-
-    public void setPassword (String password) {
-        this.password = password;
-        save();
-    }
-
-    public void addNotifications(Notification n) {
-        this.notifications.push(n);
-        save();
     }
 }

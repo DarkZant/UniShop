@@ -124,10 +124,10 @@ public class Main {
         String adresse = demanderString();
         if (choix == 1) {
             String basePath =  ACHETEURS_PATH + username + "/";
-            System.out.print("Entrez votre nom: ");
-            String nom = demanderString();
             System.out.print("Entrez votre prénom: ");
             String prenom = demanderString();
+            System.out.print("Entrez votre nom: ");
+            String nom = demanderString();
             if (new File(basePath).mkdir()) {
                 String[] infos = new String[] {motDePasse, courriel, "" + telephone , adresse, nom, prenom,
                         "0,0", "" + obtenirTempsEnSecondes()};
@@ -227,7 +227,7 @@ public class Main {
             panier.addInitial(p);
         }
         return new Acheteur(username, infos[0], infos[1], Long.parseLong(infos[2]),
-                infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), Integer.parseInt(infos[7]), as, rl, bis,
+                infos[3], infos[4], infos[5], Integer.parseInt(infos[6]), as, rl, bis,
                 panier, cmds, notifs);
 
 
@@ -409,7 +409,7 @@ public class Main {
             }
         }
         if (!file.delete())
-            System.out.println("Compte pas effacé: " + file);
+            System.out.println("Fichier non effacé: " + file);
     }
     public static String demanderCourrielUnique() {
         String courriel = demanderString();
@@ -421,5 +421,18 @@ public class Main {
         emails.add(courriel);
         ecrireFichierEntier(EMAILS, String.join(",", emails));
         return courriel;
+    }
+    public static Produit choisirProduit(ArrayList<Produit> produits) {
+        String[] s = new String[produits.size() + 1];
+        int i = 0;
+        for (Produit p : produits) {
+            s[i] = p.getQuickDisplay();
+            ++i;
+        }
+        s[produits.size()] = "Retourner au menu";
+        choix = selectionChoix(s);
+        if (choix == s.length)
+            return null;
+        return produits.get(choix - 1);
     }
 }

@@ -1,8 +1,5 @@
 package unishop;
 
-/**
- *  Cette classe représente une notification en fonction du type, acheteur, revendeur, produit et le ID commande.
- */
 public class Notification {
     final int type;
     final String acheteur;
@@ -10,15 +7,6 @@ public class Notification {
     final String produit;
     final int commandeID; //-1 Pour vide
 
-    /**
-     * Crée une instance de notification en fonction du type, acheteur, revendeur, produit et le ID commande
-     *
-     * @param type Type de notification
-     * @param acheteur Acheteur associé à la commande
-     * @param revendeur Revendeur associé à la commande
-     * @param produit Produit associé à la commande
-     * @param commandeID Id de la commande
-     */
     public Notification(int type, String acheteur, String revendeur, String produit, int commandeID) {
         this.type = type;
         this.acheteur = acheteur;
@@ -27,10 +15,6 @@ public class Notification {
         this.commandeID = commandeID;
     }
 
-    /**
-     * Cette méthode affiche un message
-     * @return le message à afficher
-     */
     public String afficher(){
         String s = "";
         switch (type) {
@@ -51,11 +35,6 @@ public class Notification {
         }
         return s;
     }
-
-    /**
-     * Cette méthode sauvegarde la notification selon un format spécifique
-     * @return  La notification selon le format spécifique
-     */
     public String saveFormat() {
         return String.join(",", String.valueOf(type), acheteur, revendeur, produit, String.valueOf(commandeID));
     }

@@ -23,8 +23,8 @@ class AcheteurTest {
         acheteursSuivis.add("Mitchell");
 
 //       Nouvel acheteur
-        javier = new Acheteur("javier", "123","123",1232323332,"123","Medina",
-                "Javier",100,50,acheteursSuivis,new ArrayList<>(),new ArrayList<>(),
+        javier = new Acheteur("Test", "123","123",1232323332,"123","Medina",
+                "Javier",100,acheteursSuivis,new ArrayList<>(),new ArrayList<>(),
                 new Commande((short) 1,1.5f,1),new ArrayList<>(), new Stack<>());
     }
 

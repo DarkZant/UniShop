@@ -44,10 +44,4 @@ class ProduitTest {
         boolean resultat = cahierUltime.estEnPromotion();
         assertTrue(resultat);
     }
-
-    @Test
-    void aDesEvaluations() {
-        boolean resultat = cahierUltime.aDesEvaluations();
-        assertFalse(resultat);
-    }
 }

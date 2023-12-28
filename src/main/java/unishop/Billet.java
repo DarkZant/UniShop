@@ -1,10 +1,8 @@
 package unishop;
 
 import java.util.StringJoiner;
+import static unishop.Main.*;
 
-/**
- * Cette classe représente un billet avec ses différents attributs tels que son id, nom, produit initial.
- */
 public class Billet {
     public final int id;
     final String nomAche;
@@ -19,19 +17,7 @@ public class Billet {
     private boolean remplaLivre; //Acheteur
 
 
-    /**
-     * Crée une intance de la classe billet
-     *
-     * @param id  L'id du billet
-     * @param nomAche Le nom de l'acheteeur qui a initié le billet
-     * @param produitInitial Le produit qui est à l'origine du billet
-     * @param probAche Le problème rencontré par l'acheteur
-     * @param estRetour Si le produit acheté à déja été retourné ou non
-     * @param iniLivre
-     * @param probRev
-     * @param produitRempla Si le produit à été remplacé
-     * @param remplaLivre Si le remplacement du produit initial a été livré
-     */
+
     public Billet(int id, String nomAche, String produitInitial, String probAche, boolean estRetour, boolean iniLivre,
                   String probRev, String produitRempla, boolean remplaLivre) {
         this.id = id;
@@ -44,28 +30,16 @@ public class Billet {
         this.produitRempla = produitRempla;
         this.remplaLivre = remplaLivre;
     }
-
-    /**
-     * Recense si le remplacement du produit initial a été livré
-     * @return True si le remplacement du produit initial a été livré et False sinon
-     */
+    public boolean isIniLivre() { return iniLivre; }
     public boolean isRemplaLivre() {
         return remplaLivre;
     }
 
-    /**
-     * Regroupe les informations du billets
-     * @return Un string qui contient les informations capitales du bilet
-     */
     public String saveFormat() {
         return String.join(",", String.valueOf(id), nomAche, produitInitial, probAche,
                 String.valueOf(estRetour), String.valueOf(iniLivre), probRev, produitRempla,
                 String.valueOf(remplaLivre));
     }
-
-    /** Résume l'état du billet
-     * @return l'état du billet
-     */
     public String afficher(){
         StringJoiner sj = new StringJoiner("\n");
         sj.add("ID: " + id);
@@ -94,34 +68,16 @@ public class Billet {
         return sj.toString();
     }
 
-    /**
-     * Affiche le menu
-     * @return Le menu
-     */
     public String afficherMenu(){
         return "ID: " + id + "; Acheteur: " + nomAche + "; Produit problématique: " + produitInitial +
                 (estRetour ? "; Retour" : "; Échange");
     }
-
-    /**
-     * Vérfie si le revendeur a mis en ligne une solution
-     * @return True si le revendeur a mis à jour une solution, False sinon
-     */
-    public boolean pasDeSolution() {return probRev.isEmpty();}
-
-    /** Met à jour la solution du revendeur
-     * @param probRev La solution que propose le revendeur
-     */
+    public boolean aSolution() {return !probRev.isEmpty();}
     public void setProbRev(String probRev) {
         this.probRev = probRev;
         save();
     }
 
-    /**
-     * Confirme la réception du produit initial par le revendeur
-     *
-     * @return True si le produit a été livré, False sinon
-     */
     // TEST
     public boolean comfirmerLivraisonInitial() {
         if (this.iniLivre)
@@ -133,9 +89,6 @@ public class Billet {
         }
     }
 
-    /** Confirme la réception du produit de remplacement
-     * @return True si le produit a été livré, False sinon
-     */
     // TEST
     public boolean comfirmerLivraisonRempla() {
         if (this.remplaLivre)
@@ -146,11 +99,7 @@ public class Billet {
             return true;
         }
     }
-
-    /**
-     * Sauvegarde les informations du billets
-     */
     public void save() {
-        Main.ecrireFichierEntier(Main.BILLETS_PATH + id + Main.CSV, saveFormat());
+        ecrireFichierEntier(BILLETS_PATH + id + CSV, saveFormat());
     }
 }
